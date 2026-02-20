@@ -1073,14 +1073,14 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/EntityNoFlag.java
-@@ -1,0 +1,36 @@
+@@ -1,0 +1,40 @@
 +package net.minecraft.src;
 +
 +public class EntityNoFlag extends EntityAnimalAttack {
 +	public EntityNoFlag(World var1) {
 +		super(var1);
 +		this.texture = "/mob/noflag.png";
-+		this.health = 100;
++		this.health = 20;
 +		this.moveSpeed = 0.7F;
 +		this.attackStrength = 1;
 +	}
@@ -1096,6 +1096,10 @@
 +		this.lastTickPosX = (int)this.lastTickPosX;
 +		this.lastTickPosY = (int)this.lastTickPosY;
 +		this.lastTickPosZ = (int)this.lastTickPosZ;
++	}
++
++	protected int getDropItemId() {
++		return Block.glitch.blockID;
 +	}
 +
 +	protected String getLivingSound() {
@@ -1264,7 +1268,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/EntityGlitchThing.java
-@@ -1,0 +1,34 @@
+@@ -1,0 +1,33 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -1282,7 +1286,6 @@
 +		super.onLivingUpdate();
 +	}
 +
-+	@Override
 +	protected int getDropItemId() {
 +		return Block.Null.blockID;
 +	}
