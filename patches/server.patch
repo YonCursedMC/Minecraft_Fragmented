@@ -783,7 +783,7 @@
  			if(var2 == 0) {
 --- /dev/null
 +++ net/minecraft/src/WorldFragmentedEvents.java
-@@ -1,0 +1,328 @@
+@@ -1,0 +1,332 @@
 +package net.minecraft.src;
 +
 +import java.util.List;
@@ -1051,7 +1051,11 @@
 +					this.worldObj.worldInfo.setWorldTime(this.worldObj.worldInfo.getSWT());
 +					List<Entity> entities = this.worldObj.loadedEntityList;
 +					for(Entity entity : entities) {
-+						entity.setPosition(entity.SX, entity.SY, entity.SZ);
++						if(entity instanceof EntityPlayerMP) {
++							((EntityPlayerMP)entity).playerNetServerHandler.teleportTo(entity.SX, entity.SY, entity.SZ, entity.rotationYaw, entity.rotationPitch);
++						} else {
++							entity.setPosition(entity.SX, entity.SY, entity.SZ);
++						}
 +					}
 +					this.timerS[2] = false;
 +					this.timer[2] = 0;
