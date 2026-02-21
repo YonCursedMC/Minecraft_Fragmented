@@ -1757,7 +1757,7 @@
  
 --- /dev/null
 +++ net/minecraft/src/WorldFragmentedEvents.java
-@@ -1,0 +1,328 @@
+@@ -1,0 +1,330 @@
 +package net.minecraft.src;
 +
 +import java.util.List;
@@ -1869,6 +1869,8 @@
 +			entity.SX = entity.posX;
 +			entity.SY = entity.posY;
 +			entity.SZ = entity.posZ;
++			entity.SYaw = entity.rotationYaw;
++			entity.SPitch = entity.rotationPitch;
 +		}
 +		this.timerS[2] = true;
 +	}
@@ -2026,7 +2028,7 @@
 +						this.worldObj.worldInfo.setWorldTime(this.worldObj.worldInfo.getSWT());
 +						List<Entity> entities = this.worldObj.loadedEntityList;
 +						for(Entity entity : entities) {
-+							entity.setPosition(entity.SX, entity.SY, entity.SZ);
++							entity.setLocationAndAngles(entity.SX, entity.SY, entity.SZ, entity.SYaw, entity.SPitch);
 +						}
 +						this.timerS[2] = false;
 +						this.timer[2] = 0;
@@ -2215,38 +2217,38 @@
 +	}
 +
 +	public ModelGT(float var1, float var2) {
-+		this.bipedHead = new ModelRenderer(0, 0, 64.0F, 64.0F);
++		this.bipedHead = new ModelRenderer(24, 0, 80.0F, 80.0F);
 +		this.bipedHead.addBox(-4.0F, -10.0F, -4.0F, 8, 10, 8, var1);
 +		this.bipedHead.setRotationPoint(0.0F, -17.0F + var2, 0.0F);
-+		this.bipedBody = new ModelRenderer(16, 18, 64.0F, 64.0F);
++		this.bipedBody = new ModelRenderer(0, 0, 80.0F, 80.0F);
 +		this.bipedBody.addBox(-4.0F, -12.5F, -2.0F, 8, 25, 4, var1);
 +		this.bipedBody.setRotationPoint(0.0F, -4.5F + var2, 0.0F);
-+		this.bipedLeftArm0 = new ModelRenderer(40, 18, 64.0F, 64.0F);
++		this.bipedLeftArm0 = new ModelRenderer(0, 49, 80.0F, 80.0F);
 +		this.bipedLeftArm0.mirror = true;
 +		this.bipedLeftArm0.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
 +		this.bipedLeftArm0.setRotationPoint(6.0F, -2.0F + var2, 0.0F);
-+		this.bipedLeftArm1 = new ModelRenderer(40, 18, 64.0F, 64.0F);
++		this.bipedLeftArm1 = new ModelRenderer(16, 38, 80.0F, 80.0F);
 +		this.bipedLeftArm1.mirror = true;
 +		this.bipedLeftArm1.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
 +		this.bipedLeftArm1.setRotationPoint(6.0F, -9.0F + var2, 0.0F);
-+		this.bipedLeftArm2 = new ModelRenderer(40, 18, 64.0F, 64.0F);
++		this.bipedLeftArm2 = new ModelRenderer(40, 18, 80.0F, 80.0F);
 +		this.bipedLeftArm2.mirror = true;
 +		this.bipedLeftArm2.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
 +		this.bipedLeftArm2.setRotationPoint(6.0F, -15.0F + var2, 0.0F);
-+		this.bipedRightArm0 = new ModelRenderer(40, 18, 64.0F, 64.0F);
++		this.bipedRightArm0 = new ModelRenderer(32, 38, 80.0F, 80.0F);
 +		this.bipedRightArm0.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
 +		this.bipedRightArm0.setRotationPoint(-6.0F, -2.0F + var2, 0.0F);
-+		this.bipedRightArm1 = new ModelRenderer(40, 18, 64.0F, 64.0F);
++		this.bipedRightArm1 = new ModelRenderer(48, 34, 80.0F, 80.0F);
 +		this.bipedRightArm1.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
 +		this.bipedRightArm1.setRotationPoint(-6.0F, -9.0F + var2, 0.0F);
-+		this.bipedRightArm2 = new ModelRenderer(40, 18, 64.0F, 64.0F);
++		this.bipedRightArm2 = new ModelRenderer(48, 50, 80.0F, 80.0F);
 +		this.bipedRightArm2.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
 +		this.bipedRightArm2.setRotationPoint(-6.0F, -15.0F + var2, 0.0F);
-+		this.bipedLeftLeg = new ModelRenderer(0, 18, 64.0F, 64.0F);
++		this.bipedLeftLeg = new ModelRenderer(24, 18, 80.0F, 80.0F);
 +		this.bipedLeftLeg.mirror = true;
 +		this.bipedLeftLeg.addBox(-2.0F, -2.0F, -2.0F, 4, 16, 4, var1);
 +		this.bipedLeftLeg.setRotationPoint(2.0F, 10.0F + var2, 0.0F);
-+		this.bipedRightLeg = new ModelRenderer(0, 18, 64.0F, 64.0F);
++		this.bipedRightLeg = new ModelRenderer(0, 29, 80.0F, 80.0F);
 +		this.bipedRightLeg.addBox(-2.0F, -2.0F, -2.0F, 4, 16, 4, var1);
 +		this.bipedRightLeg.setRotationPoint(-2.0F, 10.0F + var2, 0.0F);
 +	}
@@ -2568,33 +2570,39 @@
 +}
 --- net/minecraft/src/Entity.java
 +++ net/minecraft/src/Entity.java
-@@ -71,6 +71,9 @@
+@@ -71,6 +71,11 @@
  	public int serverPosY;
  	public int serverPosZ;
  	public boolean ignoreFrustumCheck;
 +	public double SX;
 +	public double SY;
 +	public double SZ;
++	public float SYaw;
++	public float SPitch;
  
  	public Entity(World var1) {
  		this.worldObj = var1;
-@@ -755,6 +758,9 @@
+@@ -755,6 +760,11 @@
  		var1.setShort("Fire", (short)this.fire);
  		var1.setShort("Air", (short)this.air);
  		var1.setBoolean("OnGround", this.onGround);
 +		var1.setDouble("SX", this.SX);
 +		var1.setDouble("SY", this.SY);
 +		var1.setDouble("SZ", this.SZ);
++		var1.setFloat("SYaw", this.SYaw);
++		var1.setFloat("SPitch", this.SPitch);
  		this.writeEntityToNBT(var1);
  	}
  
-@@ -786,6 +792,9 @@
+@@ -786,6 +796,11 @@
  		this.fire = var1.getShort("Fire");
  		this.air = var1.getShort("Air");
  		this.onGround = var1.getBoolean("OnGround");
 +		this.SX = var1.getDouble("SX");
 +		this.SY = var1.getDouble("SY");
 +		this.SZ = var1.getDouble("SZ");
++		this.SYaw = var1.getFloat("SYaw");
++		this.SPitch = var1.getFloat("SPitch");
  		this.setPosition(this.posX, this.posY, this.posZ);
  		this.setRotation(this.rotationYaw, this.rotationPitch);
  		this.readEntityFromNBT(var1);

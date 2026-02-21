@@ -783,7 +783,7 @@
  			if(var2 == 0) {
 --- /dev/null
 +++ net/minecraft/src/WorldFragmentedEvents.java
-@@ -1,0 +1,332 @@
+@@ -1,0 +1,334 @@
 +package net.minecraft.src;
 +
 +import java.util.List;
@@ -896,6 +896,8 @@
 +			entity.SX = entity.posX;
 +			entity.SY = entity.posY;
 +			entity.SZ = entity.posZ;
++			entity.SYaw = entity.rotationYaw;
++			entity.SPitch = entity.rotationPitch;
 +		}
 +		this.timerS[2] = true;
 +	}
@@ -1052,7 +1054,7 @@
 +					List<Entity> entities = this.worldObj.loadedEntityList;
 +					for(Entity entity : entities) {
 +						if(entity instanceof EntityPlayerMP) {
-+							((EntityPlayerMP)entity).playerNetServerHandler.teleportTo(entity.SX, entity.SY, entity.SZ, entity.rotationYaw, entity.rotationPitch);
++							((EntityPlayerMP)entity).playerNetServerHandler.teleportTo(entity.SX, entity.SY, entity.SZ, entity.SYaw, entity.SPitch);
 +						} else {
 +							entity.setPosition(entity.SX, entity.SY, entity.SZ);
 +						}
@@ -1177,33 +1179,39 @@
  }
 --- net/minecraft/src/Entity.java
 +++ net/minecraft/src/Entity.java
-@@ -66,6 +66,9 @@
+@@ -66,6 +66,11 @@
  	public int chunkCoordY;
  	public int chunkCoordZ;
  	public boolean field_28008_bI;
 +	public double SX;
 +	public double SY;
 +	public double SZ;
++	public float SYaw;
++	public float SPitch;
  
  	public Entity(World var1) {
  		this.worldObj = var1;
-@@ -699,6 +702,9 @@
+@@ -699,6 +704,11 @@
  		var1.setShort("Fire", (short)this.fire);
  		var1.setShort("Air", (short)this.air);
  		var1.setBoolean("OnGround", this.onGround);
 +		var1.setDouble("SX", this.SX);
 +		var1.setDouble("SY", this.SY);
 +		var1.setDouble("SZ", this.SZ);
++		var1.setFloat("SYaw", this.SYaw);
++		var1.setFloat("SPitch", this.SPitch);
  		this.writeEntityToNBT(var1);
  	}
  
-@@ -730,6 +736,9 @@
+@@ -730,6 +740,11 @@
  		this.fire = var1.getShort("Fire");
  		this.air = var1.getShort("Air");
  		this.onGround = var1.getBoolean("OnGround");
 +		this.SX = var1.getDouble("SX");
 +		this.SY = var1.getDouble("SY");
 +		this.SZ = var1.getDouble("SZ");
++		this.SYaw = var1.getFloat("SYaw");
++		this.SPitch = var1.getFloat("SPitch");
  		this.setPosition(this.posX, this.posY, this.posZ);
  		this.setRotation(this.rotationYaw, this.rotationPitch);
  		this.readEntityFromNBT(var1);
@@ -1583,14 +1591,14 @@
 +	public void onLivingUpdate() {
 +		super.onLivingUpdate();
 +		this.texture = "/mob/binaryglitch/" + new Random().nextInt(4) + ".png";
-+		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
++		EntityPlayerMP player = (EntityPlayerMP)this.worldObj.getClosestPlayerToEntity(this, 30);
 +		if(player != null) {
 +			if(this.getDistanceToEntity(player) <= 5) {
 +				this.setEntityDead();
 +				int XX = new Random().nextInt(1000) - 500;
 +				int ZZ = new Random().nextInt(1000) - 500;
 +				int YY = this.worldObj.getHeightValue(XX, ZZ) + 2;
-+				player.setPosition(XX, YY, ZZ);
++				player.playerNetServerHandler.teleportTo(XX, YY, ZZ, player.rotationYaw, player.rotationPitch);
 +			}
 +		}
 +	}
