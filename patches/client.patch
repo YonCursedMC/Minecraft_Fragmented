@@ -1724,7 +1724,7 @@
 +					mc.tickEvents.timerS[1] = true;
 +					new Thread(()->{
 +						try {
-+							GT.play();
++							GlitchThing.play();
 +						} catch (Exception exception) {
 +							throw new RuntimeException(exception);
 +						}
@@ -1734,7 +1734,7 @@
 +					var1.setEntityDead();
 +					new Thread(()->{
 +						try {
-+							GT.play();
++							GlitchThing.play();
 +						} catch (Exception exception) {
 +							throw new RuntimeException(exception);
 +						}
@@ -2653,7 +2653,7 @@
 +			this.mc.tickEvents.timerS[1] = true;
 +			new Thread(()->{
 +				try {
-+					GT.play();
++					GlitchThing.play();
 +				} catch (Exception exception) {
 +					throw new RuntimeException(exception);
 +				}
@@ -2662,7 +2662,7 @@
 +		case 2:
 +			new Thread(()->{
 +				try {
-+					GT.play();
++					GlitchThing.play();
 +				} catch (Exception exception) {
 +					throw new RuntimeException(exception);
 +				}
@@ -3239,51 +3239,6 @@
  		var2.draw();
  	}
  
---- /dev/null
-+++ net/minecraft/src/GT.java
-@@ -1,0 +1,42 @@
-+package net.minecraft.src;
-+
-+import javax.sound.sampled.*;
-+import java.util.Random;
-+
-+public class GT {
-+
-+	private static final int SAMPLE_RATE = 44100;
-+	private static final Random rand = new Random();
-+
-+	public static void play() throws Exception {
-+		AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
-+		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-+		SourceDataLine line = (SourceDataLine)AudioSystem.getLine(info);
-+		line.open(format, SAMPLE_RATE);
-+		line.start();
-+
-+		playGlitchBurst(line, 5000);
-+
-+		line.drain();
-+		line.close();
-+	}
-+
-+	static void playGlitchBurst(SourceDataLine line, int ms) {
-+		int samples = SAMPLE_RATE * ms / 1000;
-+		byte[] buf = new byte[samples * 2];
-+		double freq = 666;
-+		int segLen = 666;
-+
-+		for(int i = 0; i < samples; i++) {
-+			if(i % segLen == 0) freq = 80 + rand.nextInt(2000);
-+			double t = (double)i / SAMPLE_RATE;
-+			double wave = Math.sin(2 * Math.PI * freq * t);
-+			wave = Math.max(-0.5, Math.min(0.5, wave * 3.0));
-+			short val = (short)(wave * 32767);
-+			buf[i * 2] = (byte)(val >> 8);
-+			buf[i * 2 + 1] = (byte)(val & 0xFF);
-+		}
-+		line.write(buf, 0, buf.length);
-+	}
-+
-+}
 --- net/minecraft/src/GuiCrafting.java
 +++ net/minecraft/src/GuiCrafting.java
 @@ -1,6 +1,7 @@
@@ -3493,6 +3448,51 @@
  		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
  		this.mc.renderEngine.bindTexture(var2);
  		int var3 = (this.width - this.xSize) / 2;
+--- /dev/null
++++ net/minecraft/src/GlitchThing.java
+@@ -1,0 +1,42 @@
++package net.minecraft.src;
++
++import javax.sound.sampled.*;
++import java.util.Random;
++
++public class GlitchThing {
++
++	private static final int SAMPLE_RATE = 44100;
++	private static final Random rand = new Random();
++
++	public static void play() throws Exception {
++		AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
++		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
++		SourceDataLine line = (SourceDataLine)AudioSystem.getLine(info);
++		line.open(format, SAMPLE_RATE);
++		line.start();
++
++		playGlitchBurst(line, 5000);
++
++		line.drain();
++		line.close();
++	}
++
++	static void playGlitchBurst(SourceDataLine line, int ms) {
++		int samples = SAMPLE_RATE * ms / 1000;
++		byte[] buf = new byte[samples * 2];
++		double freq = 666;
++		int segLen = 666;
++
++		for(int i = 0; i < samples; i++) {
++			if(i % segLen == 0) freq = 80 + rand.nextInt(2000);
++			double t = (double)i / SAMPLE_RATE;
++			double wave = Math.sin(2 * Math.PI * freq * t);
++			wave = Math.max(-0.5, Math.min(0.5, wave * 3.0));
++			short val = (short)(wave * 32767);
++			buf[i * 2] = (byte)(val >> 8);
++			buf[i * 2 + 1] = (byte)(val & 0xFF);
++		}
++		line.write(buf, 0, buf.length);
++	}
++
++}
 --- /dev/null
 +++ net/minecraft/src/RenderGT.java
 @@ -1,0 +1,12 @@
