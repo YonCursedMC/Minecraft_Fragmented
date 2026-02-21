@@ -89,11 +89,11 @@
 +			int blockid = 0;
 +			int BX = ((int)this.posX) + new Random().nextInt(20) - 10;
 +			int BZ = ((int)this.posZ) + new Random().nextInt(20) - 10;
-+			int BY = this.worldObj.getHeightValue(BX, BZ);
++			int BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +			for(int i = 0; i < 20; i++) {
 +				BX = ((int)this.posX) + new Random().nextInt(20) - 10;
 +				BZ = ((int)this.posZ) + new Random().nextInt(20) - 10;
-+				BY = this.worldObj.getHeightValue(BX, BZ);
++				BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +				blockid = this.worldObj.getBlockId(BX, BY, BZ);
 +				if(blockid == Block.dirt.blockID || blockid == Block.grass.blockID || blockid == Block.stone.blockID || blockid == Block.waterStill.blockID || blockid == Block.leaves.blockID || blockid == Block.snow.blockID || blockid == Block.plantYellow.blockID || blockid == Block.plantRed.blockID || blockid == Block.wood.blockID || blockid == Block.reed.blockID || blockid == Block.mushroomRed.blockID || blockid == Block.mushroomBrown.blockID || blockid == Block.sand.blockID || blockid == Block.gravel.blockID) {
 +					this.worldObj.setBlockWithNotify(BX, BY, BZ, Block.Null.blockID);
@@ -190,11 +190,11 @@
 +			int blockid = 0;
 +			int BX = ((int)this.posX) + new Random().nextInt(20) - 10;
 +			int BZ = ((int)this.posZ) + new Random().nextInt(20) - 10;
-+			int BY = this.worldObj.getHeightValue(BX, BZ);
++			int BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +			for(int i = 0; i < 20; i++) {
 +				BX = ((int)this.posX) + new Random().nextInt(20) - 10;
 +				BZ = ((int)this.posZ) + new Random().nextInt(20) - 10;
-+				BY = this.worldObj.getHeightValue(BX, BZ);
++				BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +				blockid = this.worldObj.getBlockId(BX, BY, BZ);
 +				if(blockid == Block.dirt.blockID || blockid == Block.grass.blockID || blockid == Block.stone.blockID || blockid == Block.waterStill.blockID || blockid == Block.leaves.blockID || blockid == Block.snow.blockID || blockid == Block.plantYellow.blockID || blockid == Block.plantRed.blockID || blockid == Block.wood.blockID || blockid == Block.reed.blockID || blockid == Block.mushroomRed.blockID || blockid == Block.mushroomBrown.blockID || blockid == Block.sand.blockID || blockid == Block.gravel.blockID) {
 +					this.worldObj.setBlockWithNotify(BX, BY, BZ, Block.Null.blockID);
@@ -556,7 +556,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/EntityLengthFlag.java
-@@ -1,0 +1,36 @@
+@@ -1,0 +1,37 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -574,7 +574,8 @@
 +		for(int i = 0; i < 3; i++) {
 +			super.onUpdate();
 +		}
-+		this.posY = this.worldObj.getHeightValue((int)this.posX, (int)this.posZ);
++		this.worldObj.getChunkFromBlockCoords((int)this.posX >> 4, (int)this.posZ >> 4);
++		this.posY = this.worldObj.findTopSolidBlock((int)this.posX, (int)this.posZ);
 +	}
 +
 +	public boolean attackEntityFrom(Entity var1, int var2) {
@@ -823,7 +824,7 @@
 +		EntityPublicGlitch publicGlitch = new EntityPublicGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
-+		int YY = this.worldObj.getHeightValue(XX, ZZ) + 2;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ) + 2;
 +		publicGlitch.setPosition(XX, YY, ZZ);
 +		this.worldObj.entityJoinedWorld(publicGlitch);
 +	}
@@ -832,7 +833,7 @@
 +		EntityBinaryGlitch binaryGlitch = new EntityBinaryGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
-+		int YY = this.worldObj.getHeightValue(XX, ZZ) + 2;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ) + 2;
 +		binaryGlitch.setPosition(XX, YY, ZZ);
 +		this.worldObj.entityJoinedWorld(binaryGlitch);
 +	}
@@ -841,7 +842,7 @@
 +		EntityFragmented64 fragmented64 = new EntityFragmented64(this.worldObj);
 +		int XX = (int)playerSP.posX + 30;
 +		int ZZ = (int)playerSP.posZ;
-+		int YY = this.worldObj.getHeightValue(XX, ZZ) + 2;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ) + 2;
 +		fragmented64.setPosition(XX, YY, ZZ);
 +		this.worldObj.entityJoinedWorld(fragmented64);
 +	}
@@ -917,16 +918,16 @@
 +		int blockid = 0;
 +		int BX = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +		int BZ = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+		int BY = this.worldObj.getHeightValue(BX, BZ);
++		int BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +		for(int i = 0; i < 60; i++) {
 +			BX = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +			BZ = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+			BY = this.worldObj.getHeightValue(BX, BZ);
++			BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +			blockid = this.worldObj.getBlockId(BX, BY, BZ);
 +			if(blockid == Block.dirt.blockID || blockid == Block.grass.blockID || blockid == Block.stone.blockID || blockid == Block.waterStill.blockID || blockid == Block.leaves.blockID || blockid == Block.snow.blockID || blockid == Block.plantYellow.blockID || blockid == Block.plantRed.blockID || blockid == Block.wood.blockID || blockid == Block.reed.blockID || blockid == Block.mushroomRed.blockID || blockid == Block.mushroomBrown.blockID) {
 +				int BX2 = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +				int BZ2 = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+				int BY2 = this.worldObj.getHeightValue(BX, BZ);
++				int BY2 = this.worldObj.findTopSolidBlock(BX, BZ);
 +				this.worldObj.setBlockWithNotify(BX2, BY2, BZ2, blockid);
 +				break;
 +			}
@@ -937,16 +938,16 @@
 +		int blockid = 0;
 +		int BX = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +		int BZ = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+		int BY = this.worldObj.getHeightValue(BX, BZ);
++		int BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +		for(int i = 0; i < 20; i++) {
 +			BX = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +			BZ = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+			BY = this.worldObj.getHeightValue(BX, BZ);
++			BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +			blockid = this.worldObj.getBlockId(BX, BY, BZ);
 +			if(blockid == Block.dirt.blockID || blockid == Block.grass.blockID || blockid == Block.stone.blockID || blockid == Block.waterStill.blockID || blockid == Block.leaves.blockID || blockid == Block.snow.blockID || blockid == Block.plantYellow.blockID || blockid == Block.plantRed.blockID || blockid == Block.wood.blockID || blockid == Block.reed.blockID || blockid == Block.mushroomRed.blockID || blockid == Block.mushroomBrown.blockID) {
 +				int BX2 = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +				int BZ2 = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+				int BY2 = this.worldObj.getHeightValue(BX, BZ);
++				int BY2 = this.worldObj.findTopSolidBlock(BX, BZ);
 +				this.worldObj.setBlockWithNotify(BX2, BY2, BZ2, Block.glitch.blockID);
 +				break;
 +			}
@@ -957,16 +958,16 @@
 +		int blockid = 0;
 +		int BX = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +		int BZ = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+		int BY = this.worldObj.getHeightValue(BX, BZ);
++		int BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +		for(int i = 0; i < 20; i++) {
 +			BX = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +			BZ = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+			BY = this.worldObj.getHeightValue(BX, BZ);
++			BY = this.worldObj.findTopSolidBlock(BX, BZ);
 +			blockid = this.worldObj.getBlockId(BX, BY, BZ);
 +			if(blockid == Block.dirt.blockID || blockid == Block.grass.blockID || blockid == Block.stone.blockID || blockid == Block.waterStill.blockID || blockid == Block.leaves.blockID || blockid == Block.snow.blockID || blockid == Block.plantYellow.blockID || blockid == Block.plantRed.blockID || blockid == Block.wood.blockID || blockid == Block.reed.blockID || blockid == Block.mushroomRed.blockID || blockid == Block.mushroomBrown.blockID) {
 +				int BX2 = ((int)playerSP.posX) + new Random().nextInt(20) - 10;
 +				int BZ2 = ((int)playerSP.posZ) + new Random().nextInt(20) - 10;
-+				int BY2 = this.worldObj.getHeightValue(BX, BZ);
++				int BY2 = this.worldObj.findTopSolidBlock(BX, BZ);
 +				this.worldObj.setBlockWithNotify(BX2, BY2, BZ2, Block.Null.blockID);
 +				break;
 +			}
@@ -1574,7 +1575,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/EntityBinaryGlitch.java
-@@ -1,0 +1,44 @@
+@@ -1,0 +1,45 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -1597,7 +1598,8 @@
 +				this.setEntityDead();
 +				int XX = new Random().nextInt(1000) - 500;
 +				int ZZ = new Random().nextInt(1000) - 500;
-+				int YY = this.worldObj.getHeightValue(XX, ZZ) + 2;
++				this.worldObj.getChunkFromBlockCoords(XX >> 4, ZZ >> 4);
++				int YY = this.worldObj.findTopSolidBlock(XX, ZZ) + 2;
 +				player.playerNetServerHandler.teleportTo(XX, YY, ZZ, player.rotationYaw, player.rotationPitch);
 +			}
 +		}
