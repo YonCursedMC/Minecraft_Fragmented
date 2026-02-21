@@ -336,6 +336,29 @@
 +		return null;
 +	}
 +}
+--- net/minecraft/src/GuiSlotStats.java
++++ net/minecraft/src/GuiSlotStats.java
+@@ -3,6 +3,7 @@
+ import java.util.Collections;
+ import java.util.Comparator;
+ import java.util.List;
++import java.util.Random;
+ import org.lwjgl.input.Mouse;
+ 
+ abstract class GuiSlotStats extends GuiSlot {
+@@ -87,7 +88,11 @@
+ 
+ 		if(this.field_27268_b >= 0) {
+ 			this.func_27266_c(this.field_27268_b);
+-			GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX("random.click", 1.0F, 1.0F);
++			if(new Random().nextInt(6) == 0) {
++				GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX(true, "random.click", 1.0F, 1.0F);
++			} else {
++				GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX(false, "random.click", 1.0F, 1.0F);
++			}
+ 		}
+ 
+ 	}
 --- /dev/null
 +++ net/minecraft/src/WavPlaySound.java
 @@ -1,0 +1,37 @@
@@ -1227,6 +1250,37 @@
 +	}
 +
 +}
+--- net/minecraft/src/PlayerControllerSP.java
++++ net/minecraft/src/PlayerControllerSP.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import net.minecraft.client.Minecraft;
++import java.util.Random;
+ 
+ public class PlayerControllerSP extends PlayerController {
+ 	private int field_1074_c = -1;
+@@ -71,7 +72,11 @@
+ 				Block var6 = Block.blocksList[var5];
+ 				this.curBlockDamage += var6.blockStrength(this.mc.thePlayer);
+ 				if(this.field_1069_h % 4.0F == 0.0F && var6 != null) {
+-					this.mc.sndManager.playSound(var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++					if(new Random().nextInt(6) == 0) {
++						this.mc.sndManager.playSound(true, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++					} else {
++						this.mc.sndManager.playSound(false, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++					}
+ 				}
+ 
+ 				++this.field_1069_h;
+@@ -116,6 +121,6 @@
+ 
+ 	public void updateController() {
+ 		this.prevBlockDamage = this.curBlockDamage;
+-		this.mc.sndManager.playRandomMusicIfReady();
++		this.mc.sndManager.playRandomMusicIfReady(true);
+ 	}
+ }
 --- /dev/null
 +++ net/minecraft/src/EntityLengthFlag.java
 @@ -1,0 +1,36 @@
@@ -1623,7 +1677,15 @@
  	}
 --- net/minecraft/src/EntityPlayerSP.java
 +++ net/minecraft/src/EntityPlayerSP.java
-@@ -32,6 +32,20 @@
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import net.minecraft.client.Minecraft;
++import java.util.Random;
+ 
+ public class EntityPlayerSP extends EntityPlayer {
+ 	public MovementInput movementInput;
+@@ -32,6 +33,20 @@
  	}
  
  	public void onLivingUpdate() {
@@ -1644,6 +1706,33 @@
  		if(!this.mc.statFileWriter.hasAchievementUnlocked(AchievementList.openInventory)) {
  			this.mc.guiAchievement.queueAchievementInformation(AchievementList.openInventory);
  		}
+@@ -47,7 +62,11 @@
+ 			}
+ 
+ 			if(this.timeInPortal == 0.0F) {
+-				this.mc.sndManager.playSoundFX("portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++				if(new Random().nextInt(6) == 0) {
++					this.mc.sndManager.playSoundFX(true, "portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++				} else {
++					this.mc.sndManager.playSoundFX(false, "portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++				}
+ 			}
+ 
+ 			this.timeInPortal += 0.0125F;
+@@ -55,7 +74,12 @@
+ 				this.timeInPortal = 1.0F;
+ 				if(!this.worldObj.multiplayerWorld) {
+ 					this.timeUntilPortal = 10;
+-					this.mc.sndManager.playSoundFX("portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++
++					if(new Random().nextInt(6) == 0) {
++						this.mc.sndManager.playSoundFX(true, "portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++					} else {
++						this.mc.sndManager.playSoundFX(false, "portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++					}
+ 					this.mc.usePortal();
+ 				}
+ 			}
 --- /dev/null
 +++ net/minecraft/src/Packet80Event.java
 @@ -1,0 +1,32 @@
@@ -2135,6 +2224,34 @@
  		if(this.isEnabled) {
  			boolean var1 = this.isFocused && this.cursorCounter / 6 % 2 == 0;
  			this.drawString(this.fontRenderer, this.text + (var1 ? "_" : ""), this.xPos + 4, this.yPos + (this.height - 8) / 2, 14737632);
+--- net/minecraft/src/RenderGlobal.java
++++ net/minecraft/src/RenderGlobal.java
+@@ -1268,7 +1268,11 @@
+ 		}
+ 
+ 		if(this.mc.renderViewEntity.getDistanceSq(var2, var4, var6) < (double)(var10 * var10)) {
+-			this.mc.sndManager.playSound(var1, (float)var2, (float)var4, (float)var6, var8, var9);
++			if(new Random().nextInt(6) == 0) {
++				this.mc.sndManager.playSound(true, var1, (float)var2, (float)var4, (float)var6, var8, var9);
++			} else {
++				this.mc.sndManager.playSound(false, var1, (float)var2, (float)var4, (float)var6, var8, var9);
++			}
+ 		}
+ 
+ 	}
+@@ -1409,7 +1413,11 @@
+ 			var16 = var6 & 255;
+ 			if(var16 > 0) {
+ 				Block var17 = Block.blocksList[var16];
+-				this.mc.sndManager.playSound(var17.stepSound.stepSoundDir(), (float)var3 + 0.5F, (float)var4 + 0.5F, (float)var5 + 0.5F, (var17.stepSound.getVolume() + 1.0F) / 2.0F, var17.stepSound.getPitch() * 0.8F);
++				if(new Random().nextInt(6) == 0) {
++					this.mc.sndManager.playSound(true, var17.stepSound.stepSoundDir(), (float)var3 + 0.5F, (float)var4 + 0.5F, (float)var5 + 0.5F, (var17.stepSound.getVolume() + 1.0F) / 2.0F, var17.stepSound.getPitch() * 0.8F);
++				} else {
++					this.mc.sndManager.playSound(false, var17.stepSound.stepSoundDir(), (float)var3 + 0.5F, (float)var4 + 0.5F, (float)var5 + 0.5F, (var17.stepSound.getVolume() + 1.0F) / 2.0F, var17.stepSound.getPitch() * 0.8F);
++				}
+ 			}
+ 
+ 			this.mc.effectRenderer.addBlockDestroyEffects(var3, var4, var5, var6 & 255, var6 >> 8 & 255);
 --- net/minecraft/src/WorldInfo.java
 +++ net/minecraft/src/WorldInfo.java
 @@ -18,6 +18,7 @@
@@ -2820,6 +2937,39 @@
  	}
  
  	public int getSkyColorByTemp(float var1) {
+--- net/minecraft/src/PlayerControllerMP.java
++++ net/minecraft/src/PlayerControllerMP.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import net.minecraft.client.Minecraft;
++import java.util.Random;
+ 
+ public class PlayerControllerMP extends PlayerController {
+ 	private int currentBlockX = -1;
+@@ -82,7 +83,12 @@
+ 					Block var6 = Block.blocksList[var5];
+ 					this.curBlockDamageMP += var6.blockStrength(this.mc.thePlayer);
+ 					if(this.field_9441_h % 4.0F == 0.0F && var6 != null) {
+-						this.mc.sndManager.playSound(var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++						if(new Random().nextInt(6) == 0) {
++
++							this.mc.sndManager.playSound(true, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++						} else {
++							this.mc.sndManager.playSound(false, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++						}
+ 					}
+ 
+ 					++this.field_9441_h;
+@@ -126,7 +132,7 @@
+ 	public void updateController() {
+ 		this.syncCurrentPlayItem();
+ 		this.prevBlockDamageMP = this.curBlockDamageMP;
+-		this.mc.sndManager.playRandomMusicIfReady();
++		this.mc.sndManager.playRandomMusicIfReady(true);
+ 	}
+ 
+ 	private void syncCurrentPlayItem() {
 --- /dev/null
 +++ net/minecraft/src/EntityBugmob.java
 @@ -1,0 +1,43 @@
@@ -2865,6 +3015,217 @@
 +	protected String getDeathSound() {
 +		return null;
 +	}
++}
+--- /dev/null
++++ net/minecraft/src/ReverseSound.java
+@@ -1,0 +1,208 @@
++package net.minecraft.src;
++
++import paulscode.sound.*;
++import paulscode.sound.codecs.CodecWav;
++import javax.sound.sampled.*;
++import java.io.*;
++import java.net.URL;
++import java.util.HashMap;
++import java.util.Map;
++
++public class ReverseSound {
++	private final SoundSystem soundSystem;
++
++	private final Map<String, File> tempFiles = new HashMap<>();
++
++	public ReverseSound(Class<?> libraryClass) throws SoundSystemException {
++		SoundSystemConfig.addLibrary(libraryClass);
++		SoundSystemConfig.setCodec("wav", CodecWav.class);
++		soundSystem = new SoundSystem(libraryClass);
++	}
++
++	public ReverseSound(Class<?> libraryClass, Class<?> libraryClass2) throws SoundSystemException {
++		SoundSystemConfig.addLibrary(libraryClass);
++		SoundSystemConfig.addLibrary(libraryClass2);
++		SoundSystemConfig.setCodec("wav", CodecWav.class);
++		soundSystem = new SoundSystem(libraryClass);
++	}
++
++	public void newSource(boolean priority, String sourceName, URL url, String identifier,
++						  boolean toStream, float x, float y, float z,
++						  int attenuationModel, float distOrRoll) {
++		soundSystem.newSource(priority, sourceName, url, identifier,
++				toStream, x, y, z, attenuationModel, distOrRoll);
++	}
++
++	public void newReversedSource(boolean priority, String sourceName, URL url, String identifier,
++								  boolean toStream, float x, float y, float z,
++								  int attenuationModel, float distOrRoll) {
++		try {
++			File tempFile = createReversedTempFile(url);
++			tempFiles.put(sourceName, tempFile);
++
++			URL tempUrl = tempFile.toURI().toURL();
++			soundSystem.newSource(priority, sourceName, tempUrl, tempFile.getName(),
++					toStream, x, y, z, attenuationModel, distOrRoll);
++
++		} catch (IOException e) {
++			throw new RuntimeException("Failed: " + sourceName, e);
++		}
++	}
++	public void play(String sourceName) {
++		soundSystem.play(sourceName);
++	}
++
++	public void stop(String sourceName) {
++		soundSystem.stop(sourceName);
++	}
++
++	public void pause(String sourceName) {
++		soundSystem.pause(sourceName);
++	}
++
++	public void rewind(String sourceName) {
++		soundSystem.rewind(sourceName);
++	}
++
++	public void removeSource(String sourceName) {
++		soundSystem.removeSource(sourceName);
++		deleteTempFile(sourceName);
++	}
++
++	public void setVolume(String sourceName, float volume) {
++		soundSystem.setVolume(sourceName, volume);
++	}
++
++	public void setPitch(String sourceName, float pitch) {
++		soundSystem.setPitch(sourceName, pitch);
++	}
++
++	public void setPosition(String sourceName, float x, float y, float z) {
++		soundSystem.setPosition(sourceName, x, y, z);
++	}
++
++	public void setLooping(String sourceName, boolean looping) {
++		soundSystem.setLooping(sourceName, looping);
++	}
++
++	public void setAttenuation(String sourceName, int model) {
++		soundSystem.setAttenuation(sourceName, model);
++	}
++
++	public void setDistOrRoll(String sourceName, float distOrRoll) {
++		soundSystem.setDistOrRoll(sourceName, distOrRoll);
++	}
++
++	public boolean playing(String sourceName) {
++		return soundSystem.playing(sourceName);
++	}
++
++	public float getVolume(String sourceName) {
++		return soundSystem.getVolume(sourceName);
++	}
++
++	public void setMasterVolume(float volume) {
++		soundSystem.setMasterVolume(volume);
++	}
++
++	public float getMasterVolume() {
++		return soundSystem.getMasterVolume();
++	}
++
++	public void newStreamingSource(boolean priority, String sourceName, URL url, String identifier,
++								   boolean toStream, float x, float y, float z,
++								   int attenuationModel, float distOrRoll) {
++		soundSystem.newStreamingSource(priority, sourceName, url, identifier,
++				toStream, x, y, z, attenuationModel, distOrRoll);
++	}
++
++	public void quickPlay(boolean priority, URL url, String identifier, boolean toStream,
++						  float x, float y, float z, int attenuationModel, float distOrRoll) {
++		soundSystem.quickPlay(priority, url, identifier, toStream,
++				x, y, z, attenuationModel, distOrRoll);
++	}
++
++	public void quickPlayReversed(boolean priority, URL url, String identifier,
++								  float x, float y, float z,
++								  int attenuationModel, float distOrRoll) {
++		try {
++			File tempFile = createReversedTempFile(url);
++			URL tempUrl = tempFile.toURI().toURL();
++			tempFile.deleteOnExit();
++			soundSystem.quickPlay(priority, tempUrl, tempFile.getName(), false,
++					x, y, z, attenuationModel, distOrRoll);
++		} catch (IOException e) {
++			throw new RuntimeException("quickPlayReversed Failed", e);
++		}
++	}
++
++	public void cleanup() {
++		soundSystem.cleanup();
++		for(File f : tempFiles.values()) {
++			f.delete();
++		}
++		tempFiles.clear();
++	}
++	private static File createReversedTempFile(URL url) throws IOException {
++		byte[] reversedWav = buildReversedWav(url);
++		File tempFile = File.createTempFile("rev_", ".wav");
++		tempFile.deleteOnExit();
++		try(FileOutputStream fos = new FileOutputStream(tempFile)) {
++			fos.write(reversedWav);
++		}
++		return tempFile;
++	}
++
++	private static byte[] buildReversedWav(URL url) throws IOException {
++		try(AudioInputStream ais = AudioSystem.getAudioInputStream(url)) {
++			AudioFormat fmt = ais.getFormat();
++
++			if(fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED
++					&& fmt.getEncoding() != AudioFormat.Encoding.PCM_UNSIGNED) {
++				AudioFormat pcmFmt = new AudioFormat(
++						AudioFormat.Encoding.PCM_SIGNED,
++						fmt.getSampleRate(), 16,
++						fmt.getChannels(), fmt.getChannels() * 2,
++						fmt.getSampleRate(), false);
++				try(AudioInputStream pcmAis = AudioSystem.getAudioInputStream(pcmFmt, ais)) {
++					return reversePcmToWav(pcmAis);
++				}
++			}
++			return reversePcmToWav(ais);
++
++		} catch (UnsupportedAudioFileException e) {
++			throw new IOException("No Support: " + url, e);
++		}
++	}
++
++	private static byte[] reversePcmToWav(AudioInputStream ais) throws IOException {
++		AudioFormat fmt = ais.getFormat();
++		int frameSize = fmt.getFrameSize();
++
++		ByteArrayOutputStream baos = new ByteArrayOutputStream();
++		byte[] buf = new byte[8192];
++		int n;
++		while((n = ais.read(buf)) != -1) baos.write(buf, 0, n);
++		byte[] pcm = baos.toByteArray();
++
++		int frames = pcm.length / frameSize;
++		byte[] reversed = new byte[pcm.length];
++		for(int i = 0; i < frames; i++) {
++			System.arraycopy(pcm, i * frameSize,
++					reversed, (frames - 1 - i) * frameSize, frameSize);
++		}
++
++		ByteArrayOutputStream wavOut = new ByteArrayOutputStream();
++		try(AudioInputStream wrapped = new AudioInputStream(
++				new ByteArrayInputStream(reversed), fmt, frames)) {
++			AudioSystem.write(wrapped, AudioFileFormat.Type.WAVE, wavOut);
++		}
++		return wavOut.toByteArray();
++	}
++
++	private void deleteTempFile(String sourceName) {
++		File f = tempFiles.remove(sourceName);
++		if(f != null) f.delete();
++	}
++
 +}
 --- net/minecraft/src/NetHandler.java
 +++ net/minecraft/src/NetHandler.java
@@ -3206,7 +3567,20 @@
  import net.minecraft.client.Minecraft;
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
-@@ -148,15 +149,27 @@
+@@ -55,7 +56,11 @@
+ 				GuiButton var5 = (GuiButton)this.controlList.get(var4);
+ 				if(var5.mousePressed(this.mc, var1, var2)) {
+ 					this.selectedButton = var5;
+-					this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
++					if(new Random().nextInt(6) == 0) {
++						this.mc.sndManager.playSoundFX(true, "random.click", 1.0F, 1.0F);
++					} else {
++						this.mc.sndManager.playSoundFX(false, "random.click", 1.0F, 1.0F);
++					}
+ 					this.actionPerformed(var5);
+ 				}
+ 			}
+@@ -148,15 +153,27 @@
  		GL11.glDisable(GL11.GL_LIGHTING);
  		GL11.glDisable(GL11.GL_FOG);
  		Tessellator var2 = Tessellator.instance;
@@ -3561,6 +3935,206 @@
 +		g.fillRect(0, 0, getWidth(), getHeight());
 +	}
 +}
+--- net/minecraft/src/SoundManager.java
++++ net/minecraft/src/SoundManager.java
+@@ -18,6 +18,9 @@
+ 	private static boolean loaded = false;
+ 	private Random rand = new Random();
+ 	private int ticksBeforeMusic = this.rand.nextInt(12000);
++	public float glitchIntensity = 1.0F;
++	private int glitchMusicTimer = 0;
++	private boolean glitchMusicActive = false;
+ 
+ 	public void loadSoundSettings(GameSettings var1) {
+ 		this.soundPoolStreaming.field_1657_b = false;
+@@ -85,23 +88,51 @@
+ 		this.soundPoolMusic.addSound(var1, var2);
+ 	}
+ 
+-	public void playRandomMusicIfReady() {
++	public void playRandomMusicIfReady(boolean glitch) {
+ 		if(loaded && this.options.musicVolume != 0.0F) {
++
++			if(sndSystem.playing("BgMusic")) {
++				--glitchMusicTimer;
++				if(glitchMusicTimer <= 0) {
++					glitchMusicTimer = new Random().nextInt(380) + 20;
++
++					glitchMusicActive = new Random().nextFloat() < glitchIntensity;
++
++					if(glitchMusicActive && glitch) {
++						float[] g = applyGlitch(1.0F, this.options.musicVolume);
++						sndSystem.setPitch("BgMusic", g[0]);
++						sndSystem.setVolume("BgMusic", g[1]);
++					} else {
++						sndSystem.setPitch("BgMusic", 1.0F);
++						sndSystem.setVolume("BgMusic", this.options.musicVolume);
++					}
++				}
++			}
++
++			if(sndSystem.playing("BgMusic")) {
++				sndSystem.setPitch("BgMusic", 1.0F);
++				sndSystem.setVolume("BgMusic", this.options.musicVolume);
++			}
++
+ 			if(!sndSystem.playing("BgMusic") && !sndSystem.playing("streaming")) {
+-				if(this.ticksBeforeMusic > 0) {
+-					--this.ticksBeforeMusic;
+-					return;
+-				}
++				if(this.ticksBeforeMusic > 0) {--this.ticksBeforeMusic; return;}
+ 
+ 				SoundPoolEntry var1 = this.soundPoolMusic.getRandomSound();
+ 				if(var1 != null) {
+ 					this.ticksBeforeMusic = this.rand.nextInt(12000) + 12000;
+ 					sndSystem.backgroundMusic("BgMusic", var1.soundUrl, var1.soundName, false);
+-					sndSystem.setVolume("BgMusic", this.options.musicVolume);
++					if(glitch) {
++						float[] g = applyGlitch(1.0F, this.options.musicVolume);
++						sndSystem.setPitch("BgMusic", g[0]);
++						sndSystem.setVolume("BgMusic", g[1]);
++					} else {
++						sndSystem.backgroundMusic("BgMusic", var1.soundUrl, var1.soundName, false);
++						sndSystem.setVolume("BgMusic", this.options.musicVolume);
++					}
++
+ 					sndSystem.play("BgMusic");
+ 				}
+ 			}
+-
+ 		}
+ 	}
+ 
+@@ -150,47 +181,103 @@
+ 		}
+ 	}
+ 
+-	public void playSound(String var1, float var2, float var3, float var4, float var5, float var6) {
++	public void playSound(boolean glitch, String var1, float var2, float var3, float var4, float var5, float var6) {
+ 		if(loaded && this.options.soundVolume != 0.0F) {
+ 			SoundPoolEntry var7 = this.soundPoolSounds.getRandomSoundFromSoundPool(var1);
+ 			if(var7 != null && var5 > 0.0F) {
+ 				this.field_587_e = (this.field_587_e + 1) % 256;
+ 				String var8 = "sound_" + this.field_587_e;
+ 				float var9 = 16.0F;
+-				if(var5 > 1.0F) {
+-					var9 *= var5;
+-				}
+-
+-				sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
+-				sndSystem.setPitch(var8, var6);
+-				if(var5 > 1.0F) {
+-					var5 = 1.0F;
+-				}
+-
+-				sndSystem.setVolume(var8, var5 * this.options.soundVolume);
+-				sndSystem.play(var8);
++				if(var5 > 1.0F) var9 *= var5;
++
++				if(glitch) {
++					float[] g = applyGlitch(var6, var5 > 1.0F ? 1.0F : var5);
++					sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
++					sndSystem.setPitch(var8, g[0]);
++					sndSystem.setVolume(var8, g[1] * this.options.soundVolume);
++					sndSystem.play(var8);
++					maybePlayGlitchEcho(var7, g[1] * this.options.soundVolume, g[0]);
++				} else {
++					sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
++					sndSystem.setPitch(var8, var6);
++					if(var5 > 1.0F) {
++						var5 = 1.0F;
++					}
++					sndSystem.setVolume(var8, var5 * this.options.soundVolume);
++					sndSystem.play(var8);
++				}
++
+ 			}
+-
+ 		}
+ 	}
+ 
+-	public void playSoundFX(String var1, float var2, float var3) {
++	public void playSoundFX(boolean glitch, String var1, float var2, float var3) {
+ 		if(loaded && this.options.soundVolume != 0.0F) {
+ 			SoundPoolEntry var4 = this.soundPoolSounds.getRandomSoundFromSoundPool(var1);
+ 			if(var4 != null) {
+ 				this.field_587_e = (this.field_587_e + 1) % 256;
+ 				String var5 = "sound_" + this.field_587_e;
+-				sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
+-				if(var2 > 1.0F) {
+-					var2 = 1.0F;
+-				}
+-
++				if(var2 > 1.0F) var2 = 1.0F;
+ 				var2 *= 0.25F;
+-				sndSystem.setPitch(var5, var3);
+-				sndSystem.setVolume(var5, var2 * this.options.soundVolume);
+-				sndSystem.play(var5);
++				if(glitch) {
++					float[] g = applyGlitch(var3, var2);
++
++					sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
++					sndSystem.setPitch(var5, g[0]);
++					sndSystem.setVolume(var5, g[1] * this.options.soundVolume);
++					sndSystem.play(var5);
++
++					maybePlayGlitchEcho(var4, g[1] * this.options.soundVolume, g[0]);
++				} else {
++					sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
++					if(var2 > 1.0F) {
++						var2 = 1.0F;
++					}
++
++					var2 *= 0.25F;
++					sndSystem.setPitch(var5, var3);
++					sndSystem.setVolume(var5, var2 * this.options.soundVolume);
++					sndSystem.play(var5);
++				}
++
+ 			}
+-
+-		}
++		}
++	}
++
++	private float[] applyGlitch(float pitch, float vol) {
++		float p = pitch;
++		float v = vol;
++
++		p += (this.rand.nextFloat() - 0.65F) * glitchIntensity * 1.5F;
++
++		if(this.rand.nextInt(5) == 0) {
++			p *= 0.3F + this.rand.nextFloat() * 0.4F;
++		}
++		if(this.rand.nextInt(12) == 0) {
++			p *= 2.5F + this.rand.nextFloat() * 1.5F;
++		}
++
++		if(this.rand.nextInt(4) == 0) {
++			v *= this.rand.nextFloat() * (1.0F - glitchIntensity);
++		}
++		if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) {
++			v = 0.0F;
++		}
++
++		if(p < 0.05F) p = 0.05F;
++
++		return new float[]{p, v};
++	}
++
++	private void maybePlayGlitchEcho(SoundPoolEntry entry, float vol, float pitch) {
++		if(this.rand.nextInt(3) != 0) return;
++
++		this.field_587_e = (this.field_587_e + 1) % 256;
++		String echoId = "sound_" + this.field_587_e;
++		sndSystem.newSource(false, echoId, entry.soundUrl, entry.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
++		float echoPitch = pitch * (0.88F + this.rand.nextFloat() * 0.14F);
++		sndSystem.setPitch(echoId, echoPitch);
++		sndSystem.setVolume(echoId, vol * 0.45F * glitchIntensity);
++		sndSystem.play(echoId);
+ 	}
+ }
 --- net/minecraft/src/GuiFurnace.java
 +++ net/minecraft/src/GuiFurnace.java
 @@ -1,6 +1,7 @@
