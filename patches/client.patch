@@ -3885,10 +3885,13 @@
 +}
 --- net/minecraft/src/GuiChat.java
 +++ net/minecraft/src/GuiChat.java
-@@ -1,10 +1,14 @@
+@@ -1,10 +1,17 @@
  package net.minecraft.src;
  
  import org.lwjgl.input.Keyboard;
++import java.awt.*;
++import java.awt.datatransfer.DataFlavor;
++import java.awt.datatransfer.StringSelection;
 +import java.util.Random;
  
  public class GuiChat extends GuiScreen {
@@ -3900,7 +3903,25 @@
  	private static final String field_20082_i = ChatAllowedCharacters.allowedCharacters;
  
  	public void initGui() {
-@@ -45,7 +49,12 @@
+@@ -32,6 +39,17 @@
+ 			}
+ 
+ 			this.mc.displayGuiScreen((GuiScreen)null);
++		} else if(var2 == 47 && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
++			try {
++				String paste = (String)Toolkit.getDefaultToolkit()
++						.getSystemClipboard().getData(DataFlavor.stringFlavor);
++				this.message = this.message + paste;
++			} catch (Exception e) {}
++		} else if(var2 == 46 && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
++			try {
++				StringSelection ss = new StringSelection(this.message);
++				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
++			} catch (Exception e) {}
+ 		} else {
+ 			if(var2 == 14 && this.message.length() > 0) {
+ 				this.message = this.message.substring(0, this.message.length() - 1);
+@@ -45,7 +63,12 @@
  	}
  
  	public void drawScreen(int var1, int var2, float var3) {
