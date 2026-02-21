@@ -1930,7 +1930,7 @@
 +
 +	public void event8(EntityPlayerSP playerSP) {
 +		String[] tex = {"I can see you.", "You shouldn't be here.", "I never left.", "Your world is breaking.", "Stop moving.", "Stop moving.", "You are not synced.", "I remember you.", "It's behind you."};
-+		playerSP.mc.ingameGUI.addChatMessage("<" + playerSP.username + ">" + tex[new Random().nextInt(tex.length - 1)]);
++		playerSP.mc.ingameGUI.addChatMessage("<" + playerSP.username + "> " + tex[new Random().nextInt(tex.length - 1)]);
 +	}
 +
 +	public void event9(EntityPlayerSP playerSP) {

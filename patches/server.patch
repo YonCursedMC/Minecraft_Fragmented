@@ -868,7 +868,7 @@
 +
 +	public void event8(EntityPlayerMP playerSP) {
 +		String[] tex = {"I can see you.", "You shouldn't be here.", "I never left.", "Your world is breaking.", "Stop moving.", "Stop moving.", "You are not synced.", "I remember you.", "It's behind you."};
-+		playerSP.mcServer.configManager.sendChatMessageToAll("<" + playerSP.username + ">" + tex[new Random().nextInt(tex.length - 1)]);
++		playerSP.mcServer.configManager.sendChatMessageToAll("<" + playerSP.username + "> " + tex[new Random().nextInt(tex.length - 1)]);
 +	}
 +
 +	public void event9(EntityPlayerMP playerSP) {
