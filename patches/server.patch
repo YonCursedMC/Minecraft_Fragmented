@@ -632,7 +632,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/EntityDeleting.java
-@@ -1,0 +1,53 @@
+@@ -1,0 +1,54 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -648,7 +648,7 @@
 +
 +	public void onLivingUpdate() {
 +		super.onLivingUpdate();
-+		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
++		EntityPlayerMP player = (EntityPlayerMP)this.worldObj.getClosestPlayerToEntity(this, 30);
 +		if(player != null) {
 +			if(this.getDistanceToEntity(player) <= 15) {
 +				this.setEntityDead();
@@ -665,6 +665,7 @@
 +							}
 +						}
 +					}
++					player.PacketEvent(3);
 +				}
 +			}
 +		}
