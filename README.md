@@ -50,6 +50,7 @@ https://prismlauncher.org/download/windows/<br>
 - pixabay様<br>
 https://pixabay.com<br>
 - ConfyUI、Stable Audio Open(AI)
+- Adobe FireFly(AI)
 ### 一部コード(AI)
 - ChatGPT、Copilot、Claude
 ### ツール
@@ -106,6 +107,7 @@ Credits
 - pixabay<br>
 https://pixabay.com<br>
 - ConfyUI, Stable Audio Open (AI)
+- Adobe FireFly(AI)
 ### Partial Code (AI)
 - ChatGPT、Copilot、Claude
 ### Tools
