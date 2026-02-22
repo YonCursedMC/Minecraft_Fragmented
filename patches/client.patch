@@ -4176,17 +4176,18 @@
 +}
 --- net/minecraft/src/SoundManager.java
 +++ net/minecraft/src/SoundManager.java
-@@ -18,6 +18,9 @@
+@@ -18,6 +18,10 @@
  	private static boolean loaded = false;
  	private Random rand = new Random();
  	private int ticksBeforeMusic = this.rand.nextInt(12000);
 +	public float glitchIntensity = 1.0F;
 +	private int glitchMusicTimer = 0;
++	private int glitchMusicDuration = 0;
 +	private boolean glitchMusicActive = false;
  
  	public void loadSoundSettings(GameSettings var1) {
  		this.soundPoolStreaming.field_1657_b = false;
-@@ -85,23 +88,51 @@
+@@ -85,13 +89,48 @@
  		this.soundPoolMusic.addSound(var1, var2);
  	}
  
@@ -4194,25 +4195,39 @@
 +	public void playRandomMusicIfReady(boolean glitch) {
  		if(loaded && this.options.musicVolume != 0.0F) {
 +
-+			if(sndSystem.playing("BgMusic")) {
-+				--glitchMusicTimer;
-+				if(glitchMusicTimer <= 0) {
-+					glitchMusicTimer = new Random().nextInt(380) + 20;
++			if(sndSystem.playing("BgMusic") && glitch) {
 +
-+					glitchMusicActive = new Random().nextFloat() < glitchIntensity;
++				if(glitchMusicActive) {
++					--glitchMusicDuration;
 +
-+					if(glitchMusicActive && glitch) {
-+						float[] g = applyGlitch(1.0F, this.options.musicVolume);
++					if(this.rand.nextInt(3) == 0) {
++						float[] g = applyGlitch( 1.0F, this.options.musicVolume);
 +						sndSystem.setPitch("BgMusic", g[0]);
 +						sndSystem.setVolume("BgMusic", g[1]);
-+					} else {
++					}
++
++					if(glitchMusicDuration <= 0) {
++						glitchMusicActive = false;
++						glitchMusicTimer = this.rand.nextInt(400) + 100; // 次の抽選まで5秒〜25秒待つ
 +						sndSystem.setPitch("BgMusic", 1.0F);
 +						sndSystem.setVolume("BgMusic", this.options.musicVolume);
++					}
++
++				} else {
++					--glitchMusicTimer;
++					if(glitchMusicTimer <= 0) {
++						if(this.rand.nextFloat() < glitchIntensity) {
++							glitchMusicActive = true;
++							glitchMusicDuration = this.rand.nextInt(100) + 20;
++						} else {
++							glitchMusicTimer = this.rand.nextInt(400) + 100;
++						}
 +					}
 +				}
 +			}
 +
-+			if(sndSystem.playing("BgMusic")) {
++			if(!glitch && sndSystem.playing("BgMusic")) {
++				glitchMusicActive = false;
 +				sndSystem.setPitch("BgMusic", 1.0F);
 +				sndSystem.setVolume("BgMusic", this.options.musicVolume);
 +			}
@@ -4222,22 +4237,11 @@
 -					--this.ticksBeforeMusic;
 -					return;
 -				}
-+				if(this.ticksBeforeMusic > 0) {--this.ticksBeforeMusic; return;}
++				if(this.ticksBeforeMusic > 0) { --this.ticksBeforeMusic; return; }
  
  				SoundPoolEntry var1 = this.soundPoolMusic.getRandomSound();
  				if(var1 != null) {
- 					this.ticksBeforeMusic = this.rand.nextInt(12000) + 12000;
- 					sndSystem.backgroundMusic("BgMusic", var1.soundUrl, var1.soundName, false);
--					sndSystem.setVolume("BgMusic", this.options.musicVolume);
-+					if(glitch) {
-+						float[] g = applyGlitch(1.0F, this.options.musicVolume);
-+						sndSystem.setPitch("BgMusic", g[0]);
-+						sndSystem.setVolume("BgMusic", g[1]);
-+					} else {
-+						sndSystem.backgroundMusic("BgMusic", var1.soundUrl, var1.soundName, false);
-+						sndSystem.setVolume("BgMusic", this.options.musicVolume);
-+					}
-+
+@@ -101,7 +140,6 @@
  					sndSystem.play("BgMusic");
  				}
  			}
@@ -4245,7 +4249,7 @@
  		}
  	}
  
-@@ -150,47 +181,103 @@
+@@ -150,47 +188,96 @@
  		}
  	}
  
@@ -4272,22 +4276,16 @@
 +				if(var5 > 1.0F) var9 *= var5;
 +
 +				if(glitch) {
-+					float[] g = applyGlitch(var6, var5 > 1.0F ? 1.0F : var5);
-+					sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
-+					sndSystem.setPitch(var8, g[0]);
-+					sndSystem.setVolume(var8, g[1] * this.options.soundVolume);
-+					sndSystem.play(var8);
-+					maybePlayGlitchEcho(var7, g[1] * this.options.soundVolume, g[0]);
++					if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) return;
++
++					playGlitchStutter(var7, var5 > 1.0F ? 1.0F : var5, var6, true, var2, var3, var4, var9);
 +				} else {
 +					sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
 +					sndSystem.setPitch(var8, var6);
-+					if(var5 > 1.0F) {
-+						var5 = 1.0F;
-+					}
++					if(var5 > 1.0F) var5 = 1.0F;
 +					sndSystem.setVolume(var8, var5 * this.options.soundVolume);
 +					sndSystem.play(var8);
 +				}
-+
  			}
 -
  		}
@@ -4310,30 +4308,20 @@
 -				sndSystem.setPitch(var5, var3);
 -				sndSystem.setVolume(var5, var2 * this.options.soundVolume);
 -				sndSystem.play(var5);
+-			}
+-
++
 +				if(glitch) {
-+					float[] g = applyGlitch(var3, var2);
++					if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) return;
 +
-+					sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
-+					sndSystem.setPitch(var5, g[0]);
-+					sndSystem.setVolume(var5, g[1] * this.options.soundVolume);
-+					sndSystem.play(var5);
-+
-+					maybePlayGlitchEcho(var4, g[1] * this.options.soundVolume, g[0]);
++					playGlitchStutter(var4, var2, var3, false, 0, 0, 0, 0);
 +				} else {
 +					sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
-+					if(var2 > 1.0F) {
-+						var2 = 1.0F;
-+					}
-+
-+					var2 *= 0.25F;
 +					sndSystem.setPitch(var5, var3);
 +					sndSystem.setVolume(var5, var2 * this.options.soundVolume);
 +					sndSystem.play(var5);
 +				}
-+
- 			}
--
--		}
++			}
 +		}
 +	}
 +
@@ -4362,16 +4350,25 @@
 +		return new float[]{p, v};
 +	}
 +
-+	private void maybePlayGlitchEcho(SoundPoolEntry entry, float vol, float pitch) {
-+		if(this.rand.nextInt(3) != 0) return;
 +
-+		this.field_587_e = (this.field_587_e + 1) % 256;
-+		String echoId = "sound_" + this.field_587_e;
-+		sndSystem.newSource(false, echoId, entry.soundUrl, entry.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
-+		float echoPitch = pitch * (0.88F + this.rand.nextFloat() * 0.14F);
-+		sndSystem.setPitch(echoId, echoPitch);
-+		sndSystem.setVolume(echoId, vol * 0.45F * glitchIntensity);
-+		sndSystem.play(echoId);
++	private void playGlitchStutter(SoundPoolEntry entry, float vol, float pitch, boolean positional,
++								   float x, float y, float z, float var9) {
++		int count = this.rand.nextInt(3) + 2;
++		for(int i = 0; i < count; i++) {
++			this.field_587_e = (this.field_587_e + 1) % 256;
++			String id = "sound_" + this.field_587_e;
++
++			float[] g = applyGlitch(pitch, vol);
++
++			if(positional) {
++				sndSystem.newSource(vol > 1.0F, id, entry.soundUrl, entry.soundName, false, x, y, z, 2, var9);
++			} else {
++				sndSystem.newSource(false, id, entry.soundUrl, entry.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
++			}
++			sndSystem.setPitch(id, g[0]);
++			sndSystem.setVolume(id, g[1] * this.options.soundVolume);
++			sndSystem.play(id);
+ 		}
  	}
  }
 --- net/minecraft/src/GuiFurnace.java
