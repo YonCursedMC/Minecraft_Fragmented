@@ -754,7 +754,15 @@
 +}
 --- net/minecraft/src/EntityPlayer.java
 +++ net/minecraft/src/EntityPlayer.java
-@@ -33,6 +33,7 @@
+@@ -2,6 +2,7 @@
+ 
+ import java.util.Iterator;
+ import java.util.List;
++import java.util.Random;
+ 
+ public abstract class EntityPlayer extends EntityLiving {
+ 	public InventoryPlayer inventory = new InventoryPlayer(this);
+@@ -33,6 +34,7 @@
  	public float timeInPortal;
  	private int damageRemainder = 0;
  	public EntityFish fishEntity = null;
@@ -762,7 +770,7 @@
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -355,6 +356,20 @@
+@@ -355,6 +357,23 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
@@ -776,6 +784,9 @@
 +			if(var1 instanceof EntityGlitchThing) {
 +				var1.setEntityDead();
 +				playerMP.PacketEvent(1);
++				if(new Random().nextInt(12) == 0) {
++					playerMP.PacketEvent(4);
++				}
 +			}
 +			if(var1 instanceof EntityLengthFlag) {
 +				var1.setEntityDead();

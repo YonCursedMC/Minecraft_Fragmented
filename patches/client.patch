@@ -216,7 +216,7 @@
 +		}
 +		if(this.timerS[3]) {
 +			this.timer[3]++;
-+			if(this.timer[3] >= 20 * 5) {
++			if(this.timer[3] >= 20 * 8) {
 +				this.timerS[3] = false;
 +				this.timer[3] = 0;
 +			}
@@ -1800,14 +1800,18 @@
  			this.theGame.fontRenderer.drawStringWithShadow(var1, 2, 2, 16777215);
 --- net/minecraft/src/EntityPlayer.java
 +++ net/minecraft/src/EntityPlayer.java
-@@ -1,5 +1,6 @@
+@@ -1,7 +1,10 @@
  package net.minecraft.src;
  
 +import net.minecraft.client.Minecraft;
++import javax.swing.*;
  import java.util.Iterator;
  import java.util.List;
++import java.util.Random;
  
-@@ -36,6 +37,7 @@
+ public abstract class EntityPlayer extends EntityLiving {
+ 	public InventoryPlayer inventory = new InventoryPlayer(this);
+@@ -36,6 +39,7 @@
  	public float prevTimeInPortal;
  	private int damageRemainder = 0;
  	public EntityFish fishEntity = null;
@@ -1815,7 +1819,7 @@
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -374,6 +376,47 @@
+@@ -374,6 +378,62 @@
  
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
@@ -1837,6 +1841,21 @@
 +							throw new RuntimeException(exception);
 +						}
 +					}).start();
++					if(new Random().nextInt(12) == 0) {
++						new Thread(()->WavPlaySound.playsound("/sounds/GT.wav")).start();
++						try {
++							Thread.sleep(500);
++						} catch (InterruptedException e) {
++							throw new RuntimeException(e);
++						}
++						SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
++						try {
++							Thread.sleep(8000);
++						} catch (InterruptedException e) {
++							throw new RuntimeException(e);
++						}
++						throw new RuntimeException("Thing");
++					}
 +				}
 +				if(var1 instanceof EntityLengthFlag) {
 +					var1.setEntityDead();
@@ -2704,6 +2723,165 @@
 +		}
 +	}
 +}
+--- /dev/null
++++ net/minecraft/src/BlueScreenGT.java
+@@ -1,0 +1,156 @@
++package net.minecraft.src;
++
++import javax.swing.*;
++import javax.swing.Timer;
++import java.awt.*;
++
++public class BlueScreenGT extends JFrame {
++
++	private static final Color BSOD_BLUE = new Color(0x00, 0x78, 0xD4);
++	private static final Color WHITE = Color.WHITE;
++
++	private int progressPercent = 0;
++	private javax.swing.Timer progressTimer;
++
++	public BlueScreenGT() {
++		initWindow();
++		startProgressAnimation();
++	}
++
++	private void initWindow() {
++		setUndecorated(true);
++		setDefaultCloseOperation(EXIT_ON_CLOSE);
++
++		GraphicsDevice gd = GraphicsEnvironment
++				.getLocalGraphicsEnvironment()
++				.getDefaultScreenDevice();
++		if(gd.isFullScreenSupported()) {
++			gd.setFullScreenWindow(this);
++		} else {
++			setExtendedState(JFrame.MAXIMIZED_BOTH);
++		}
++
++		JPanel panel = new BSODPanel();
++		panel.setBackground(BSOD_BLUE);
++		setContentPane(panel);
++
++		//KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
++		//panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(esc, "close");
++		//panel.getActionMap().put("close", new AbstractAction() {
++		//	public void actionPerformed(ActionEvent e) {dispose(); System.exit(0);}
++		//});
++
++		//panel.addMouseListener(new MouseAdapter() {
++		//	@Override
++		//	public void mouseClicked(MouseEvent e) {
++		//		dispose(); System.exit(0);
++		//	}
++		//});
++	}
++
++	private void startProgressAnimation() {
++		progressTimer = new javax.swing.Timer(40, e->{
++			if(progressPercent < 100) {
++				progressPercent++;
++				repaint();
++			} else {
++				((Timer)e.getSource()).stop();
++			}
++		});
++		progressTimer.start();
++	}
++
++	private class BSODPanel extends JPanel {
++
++		@Override
++		protected void paintComponent(Graphics g) {
++			super.paintComponent(g);
++			Graphics2D g2 = (Graphics2D)g;
++			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
++					RenderingHints.VALUE_ANTIALIAS_ON);
++			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
++					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
++
++			int w = getWidth();
++			int h = getHeight();
++
++			g2.setColor(BSOD_BLUE);
++			g2.fillRect(0, 0, w, h);
++
++			int leftMargin = (int)(w * 0.13);
++			int lineSpacing = (int)(h * 0.05);
++			int currentY = (int)(h * 0.15);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.15)));
++			g2.setColor(WHITE);
++			g2.drawString(":( ", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.8);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.045)));
++			g2.drawString("Your PC ran into a problem and needs to restart.", leftMargin, currentY);
++			currentY += lineSpacing;
++			g2.drawString("We're just collecting some error info, and then we'll restart for you.", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.5);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.055)));
++			g2.drawString(progressPercent + "% complete", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.2);
++
++			int barW = (int)(w * 0.50);
++			int barH = (int)(h * 0.012);
++			g2.setColor(new Color(0x00, 0x55, 0xA0));
++			g2.fillRoundRect(leftMargin, currentY, barW, barH, barH, barH);
++			g2.setColor(WHITE);
++			int filled = (int)(barW * progressPercent / 100.0);
++			if(filled > 0) {
++				g2.fillRoundRect(leftMargin, currentY, filled, barH, barH, barH);
++			}
++			currentY += (int)(lineSpacing * 1.8);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.022)));
++			g2.setColor(new Color(255, 255, 255, 200));
++			g2.drawString("For more information about this issue and possible fixes, visit", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setColor(WHITE);
++			g2.drawString("https://www.windows.com/stopcode", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setColor(new Color(255, 255, 255, 200));
++			g2.drawString("Stop code:", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setFont(new Font("Segoe UI", Font.BOLD, (int)(h * 0.025)));
++			g2.setColor(WHITE);
++			g2.drawString("CRITICAL_PROCESS_DIED", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.2);
++
++			drawFakeQR(g2, leftMargin, currentY, (int)(h * 0.08));
++			currentY += (int)(h * 0.08) + (int)(lineSpacing * 0.5);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.018)));
++			g2.setColor(new Color(255, 255, 255, 160));
++			g2.drawString("Press Esc or click anywhere to close this screen.", leftMargin, currentY);
++		}
++
++		private void drawFakeQR(Graphics2D g2, int x, int y, int size) {
++			int cell = size / 9;
++			int[][] pattern = {
++					{1, 1, 1, 1, 1, 1, 1, 0, 1},
++					{1, 0, 0, 0, 0, 0, 1, 0, 0},
++					{1, 0, 1, 1, 1, 0, 1, 0, 1},
++					{1, 0, 1, 1, 1, 0, 1, 0, 0},
++					{1, 0, 1, 1, 1, 0, 1, 0, 1},
++					{1, 0, 0, 0, 0, 0, 1, 0, 0},
++					{1, 1, 1, 1, 1, 1, 1, 0, 1},
++					{0, 0, 0, 0, 0, 0, 0, 0, 0},
++					{1, 0, 1, 0, 1, 1, 1, 1, 0},
++					};
++			g2.setColor(WHITE);
++			for(int row = 0; row < pattern.length; row++) {
++				for(int col = 0; col < pattern[row].length; col++) {
++					if(pattern[row][col] == 1) {
++						g2.fillRect(x + col * cell, y + row * cell, cell - 1, cell - 1);
++					}
++				}
++			}
++		}
++	}
++}
 --- net/minecraft/src/Entity.java
 +++ net/minecraft/src/Entity.java
 @@ -71,6 +71,11 @@
@@ -2776,7 +2954,15 @@
 +}
 --- net/minecraft/src/NetClientHandler.java
 +++ net/minecraft/src/NetClientHandler.java
-@@ -621,7 +621,86 @@
+@@ -10,6 +10,7 @@
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.client.Minecraft;
++import javax.swing.*;
+ 
+ public class NetClientHandler extends NetHandler {
+ 	private boolean disconnected = false;
+@@ -621,7 +622,98 @@
  		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
  	}
  
@@ -2817,10 +3003,22 @@
 +			}
 +			throw new RuntimeException("Frag");
 +		case 3:
-+			this.mc.tickEvents.timerS[3] = true;
++			this.mc.tickEvents.timerS[2] = true;
 +			break;
 +		case 4:
-+			break;
++			new Thread(()->WavPlaySound.playsound("/sounds/GT.wav")).start();
++			try {
++				Thread.sleep(500);
++			} catch (InterruptedException exception) {
++				throw new RuntimeException(exception);
++			}
++			SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
++			try {
++				Thread.sleep(8000);
++			} catch (InterruptedException exception) {
++				throw new RuntimeException(exception);
++			}
++			throw new RuntimeException("Thing");
 +		case 5:
 +			break;
 +		case 6:
