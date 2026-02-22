@@ -2851,11 +2851,11 @@
 +			currentY += (int)(lineSpacing * 1.2);
 +
 +			drawFakeQR(g2, leftMargin, currentY, (int)(h * 0.08));
-+			currentY += (int)(h * 0.08) + (int)(lineSpacing * 0.5);
++			//currentY += (int)(h * 0.08) + (int)(lineSpacing * 0.5);
 +
 +			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.018)));
 +			g2.setColor(new Color(255, 255, 255, 160));
-+			g2.drawString("Press Esc or click anywhere to close this screen.", leftMargin, currentY);
++			//g2.drawString("Press Esc or click anywhere to close this screen.", leftMargin, currentY);
 +		}
 +
 +		private void drawFakeQR(Graphics2D g2, int x, int y, int size) {
