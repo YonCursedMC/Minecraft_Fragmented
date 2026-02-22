@@ -1,128 +1,3 @@
---- net/minecraft/src/ModelRenderer.java
-+++ net/minecraft/src/ModelRenderer.java
-@@ -18,10 +18,21 @@
- 	public boolean mirror = false;
- 	public boolean showModel = true;
- 	public boolean field_1402_i = false;
-+	public float SX;
-+	public float SY;
- 
- 	public ModelRenderer(int var1, int var2) {
- 		this.textureOffsetX = var1;
- 		this.textureOffsetY = var2;
-+		this.SX = 64.0F;
-+		this.SY = 32.0F;
-+	}
-+
-+	public ModelRenderer(int var1, int var2, float XX, float YY) {
-+		this.textureOffsetX = var1;
-+		this.textureOffsetY = var2;
-+		this.SX = XX;
-+		this.SY = YY;
- 	}
- 
- 	public void addBox(float var1, float var2, float var3, int var4, int var5, int var6) {
-@@ -62,12 +73,12 @@
- 		this.corners[5] = var16;
- 		this.corners[6] = var17;
- 		this.corners[7] = var18;
--		this.faces[0] = new TexturedQuad(new PositionTextureVertex[]{var16, var12, var13, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6 + var5);
--		this.faces[1] = new TexturedQuad(new PositionTextureVertex[]{var20, var15, var18, var14}, this.textureOffsetX + 0, this.textureOffsetY + var6, this.textureOffsetX + var6, this.textureOffsetY + var6 + var5);
--		this.faces[2] = new TexturedQuad(new PositionTextureVertex[]{var16, var15, var20, var12}, this.textureOffsetX + var6, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6);
--		this.faces[3] = new TexturedQuad(new PositionTextureVertex[]{var13, var14, var18, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4 + var4, this.textureOffsetY + var6);
--		this.faces[4] = new TexturedQuad(new PositionTextureVertex[]{var12, var20, var14, var13}, this.textureOffsetX + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6 + var5);
--		this.faces[5] = new TexturedQuad(new PositionTextureVertex[]{var15, var16, var17, var18}, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6 + var4, this.textureOffsetY + var6 + var5);
-+		this.faces[0] = new TexturedQuad(new PositionTextureVertex[]{var16, var12, var13, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6 + var5, this.SX, this.SY);
-+		this.faces[1] = new TexturedQuad(new PositionTextureVertex[]{var20, var15, var18, var14}, this.textureOffsetX + 0, this.textureOffsetY + var6, this.textureOffsetX + var6, this.textureOffsetY + var6 + var5, this.SX, this.SY);
-+		this.faces[2] = new TexturedQuad(new PositionTextureVertex[]{var16, var15, var20, var12}, this.textureOffsetX + var6, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.SX, this.SY);
-+		this.faces[3] = new TexturedQuad(new PositionTextureVertex[]{var13, var14, var18, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4 + var4, this.textureOffsetY + var6, this.SX, this.SY);
-+		this.faces[4] = new TexturedQuad(new PositionTextureVertex[]{var12, var20, var14, var13}, this.textureOffsetX + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6 + var5, this.SX, this.SY);
-+		this.faces[5] = new TexturedQuad(new PositionTextureVertex[]{var15, var16, var17, var18}, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6 + var4, this.textureOffsetY + var6 + var5, this.SX, this.SY);
- 		if(this.mirror) {
- 			for(int var19 = 0; var19 < this.faces.length; ++var19) {
- 				this.faces[var19].flipFace();
---- net/minecraft/src/World.java
-+++ net/minecraft/src/World.java
-@@ -54,6 +54,7 @@
- 	private int soundCounter;
- 	private List field_1012_M;
- 	public boolean multiplayerWorld;
-+	public WorldFragmentedEvents fragmentedEvents;
- 
- 	public WorldChunkManager getWorldChunkManager() {
- 		return this.worldProvider.worldChunkMgr;
-@@ -98,6 +99,7 @@
- 		this.chunkProvider = this.getChunkProvider();
- 		this.calculateInitialSkylight();
- 		this.func_27163_E();
-+		this.fragmentedEvents = new WorldFragmentedEvents(this);
- 	}
- 
- 	public World(World var1, WorldProvider var2) {
-@@ -140,6 +142,7 @@
- 		this.chunkProvider = this.getChunkProvider();
- 		this.calculateInitialSkylight();
- 		this.func_27163_E();
-+		this.fragmentedEvents = new WorldFragmentedEvents(this);
- 	}
- 
- 	public World(ISaveHandler var1, String var2, long var3) {
-@@ -181,6 +184,7 @@
- 		this.field_28108_z = new MapStorage(var1);
- 		this.worldInfo = var1.loadWorldInfo();
- 		this.isNewWorld = this.worldInfo == null;
-+		this.fragmentedEvents = new WorldFragmentedEvents(this);
- 		if(var5 != null) {
- 			this.worldProvider = var5;
- 		} else if(this.worldInfo != null && this.worldInfo.getDimension() == -1) {
-@@ -1737,6 +1741,7 @@
- 	}
- 
- 	public void tick() {
-+		this.fragmentedEvents.tickEvents();
- 		this.updateWeather();
- 		long var2;
- 		if(this.isAllPlayersFullyAsleep()) {
---- /dev/null
-+++ net/minecraft/src/EntityAnimalAttack.java
-@@ -1,0 +1,37 @@
-+package net.minecraft.src;
-+
-+public abstract class EntityAnimalAttack extends EntityAnimal {
-+	protected int attackStrength = 2;
-+
-+	public EntityAnimalAttack(World var1) {
-+		super(var1);
-+	}
-+
-+	protected Entity findPlayerToAttack() {
-+		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 60.0D);
-+		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
-+	}
-+
-+	public boolean attackEntityFrom(Entity var1, int var2) {
-+		if(super.attackEntityFrom(var1, var2)) {
-+			if(this.riddenByEntity != var1 && this.ridingEntity != var1) {
-+				if(var1 != this) {
-+					this.playerToAttack = var1;
-+				}
-+
-+				return true;
-+			} else {
-+				return true;
-+			}
-+		} else {
-+			return false;
-+		}
-+	}
-+
-+	protected void attackEntity(Entity var1, float var2) {
-+		if(this.attackTime <= 0 && var2 < 2.0F && var1.boundingBox.maxY > this.boundingBox.minY && var1.boundingBox.minY < this.boundingBox.maxY) {
-+			this.attackTime = 20;
-+			var1.attackEntityFrom(this, this.attackStrength);
-+		}
-+	}
-+}
 --- net/minecraft/src/GuiInventory.java
 +++ net/minecraft/src/GuiInventory.java
 @@ -2,6 +2,7 @@
@@ -292,6 +167,2215 @@
  		Iterator var1 = this.entityRenderMap.values().iterator();
  
  		while(var1.hasNext()) {
+--- net/minecraft/src/GuiSlotStats.java
++++ net/minecraft/src/GuiSlotStats.java
+@@ -3,6 +3,7 @@
+ import java.util.Collections;
+ import java.util.Comparator;
+ import java.util.List;
++import java.util.Random;
+ import org.lwjgl.input.Mouse;
+ 
+ abstract class GuiSlotStats extends GuiSlot {
+@@ -87,7 +88,11 @@
+ 
+ 		if(this.field_27268_b >= 0) {
+ 			this.func_27266_c(this.field_27268_b);
+-			GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX("random.click", 1.0F, 1.0F);
++			if(new Random().nextInt(6) == 0) {
++				GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX(true, "random.click", 1.0F, 1.0F);
++			} else {
++				GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX(false, "random.click", 1.0F, 1.0F);
++			}
+ 		}
+ 
+ 	}
+--- net/minecraft/src/BlockFlower.java
++++ net/minecraft/src/BlockFlower.java
+@@ -21,11 +21,11 @@
+ 
+ 	public void onNeighborBlockChange(World var1, int var2, int var3, int var4, int var5) {
+ 		super.onNeighborBlockChange(var1, var2, var3, var4, var5);
+-		this.func_268_h(var1, var2, var3, var4);
++		//this.func_268_h(var1, var2, var3, var4);
+ 	}
+ 
+ 	public void updateTick(World var1, int var2, int var3, int var4, Random var5) {
+-		this.func_268_h(var1, var2, var3, var4);
++		//this.func_268_h(var1, var2, var3, var4);
+ 	}
+ 
+ 	protected final void func_268_h(World var1, int var2, int var3, int var4) {
+@@ -36,10 +36,11 @@
+ 
+ 	}
+ 
+-	public boolean canBlockStay(World var1, int var2, int var3, int var4) {
+-		return (var1.getFullBlockLightValue(var2, var3, var4) >= 8 || var1.canBlockSeeTheSky(var2, var3, var4)) && this.canThisPlantGrowOnThisBlockID(var1.getBlockId(var2, var3 - 1, var4));
+-	}
+-
++	/**
++	 * public boolean canBlockStay(World var1, int var2, int var3, int var4) {
++	 * return (var1.getFullBlockLightValue(var2, var3, var4) >= 8 || var1.canBlockSeeTheSky(var2, var3, var4)) && this.canThisPlantGrowOnThisBlockID(var1.getBlockId(var2, var3 - 1, var4));
++	 * }
++	 */
+ 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World var1, int var2, int var3, int var4) {
+ 		return null;
+ 	}
+--- /dev/null
++++ net/minecraft/src/BiomeGenGlitch.java
+@@ -1,0 +1,11 @@
++package net.minecraft.src;
++
++public class BiomeGenGlitch extends BiomeGenBase {
++	public BiomeGenGlitch() {
++		super();
++		this.biomeName = "RnJhZ21lbnRlZA==";
++		this.spawnableCreatureList.clear();
++		this.topBlock = (byte)Block.grass.blockID;
++		this.fillerBlock = (byte)Block.dirt.blockID;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/RenderLengthFlag.java
+@@ -1,0 +1,12 @@
++package net.minecraft.src;
++
++import org.lwjgl.opengl.GL11;
++
++public class RenderLengthFlag extends RenderLiving {
++	protected ModelLengthFlag modelBipedMain;
++
++	public RenderLengthFlag(ModelLengthFlag var1, float var2) {
++		super(var1, var2);
++		this.modelBipedMain = var1;
++	}
++}
+--- net/minecraft/src/ChunkProviderGenerate.java
++++ net/minecraft/src/ChunkProviderGenerate.java
+@@ -113,9 +113,22 @@
+ 	public void replaceBlocksForBiome(int var1, int var2, byte[] var3, BiomeGenBase[] var4) {
+ 		byte var5 = 64;
+ 		double var6 = 1.0D / 32.0D;
+-		this.sandNoise = this.field_909_n.generateNoiseOctaves(this.sandNoise, (double)(var1 * 16), (double)(var2 * 16), 0.0D, 16, 16, 1, var6, var6, 1.0D);
+-		this.gravelNoise = this.field_909_n.generateNoiseOctaves(this.gravelNoise, (double)(var1 * 16), 109.0134D, (double)(var2 * 16), 16, 1, 16, var6, 1.0D, var6);
+-		this.stoneNoise = this.field_908_o.generateNoiseOctaves(this.stoneNoise, (double)(var1 * 16), (double)(var2 * 16), 0.0D, 16, 16, 1, var6 * 2.0D, var6 * 2.0D, var6 * 2.0D);
++		double offsetX = 0;
++		double offsetY = 0;
++		double offsetZ = 0;
++		for(int var8 = 0; var8 < 16; ++var8) {
++			for(int var9 = 0; var9 < 16; ++var9) {
++				BiomeGenBase var10 = var4[var8 + var9 * 16];
++				if(var10 == BiomeGenBase.glitch) {
++					offsetX = (rand.nextDouble() - 2.0);
++					offsetY = (rand.nextDouble() - 2.0);
++					offsetZ = (rand.nextDouble() - 2.0);
++				}
++			}
++		}
++		this.sandNoise = this.field_909_n.generateNoiseOctaves(this.sandNoise, (double)(var1 * 16) + offsetX, (double)(var2 * 16) + offsetY, 0.0D + offsetZ, 16, 16, 1, var6, var6, 1.0D);
++		this.gravelNoise = this.field_909_n.generateNoiseOctaves(this.gravelNoise, (double)(var1 * 16) + offsetX, 109.0134D + offsetY, (double)(var2 * 16) + offsetZ, 16, 1, 16, var6, 1.0D, var6);
++		this.stoneNoise = this.field_908_o.generateNoiseOctaves(this.stoneNoise, (double)(var1 * 16) + offsetX, (double)(var2 * 16) + offsetY, 0.0D + offsetZ, 16, 16, 1, var6 * 2.0D, var6 * 2.0D, var6 * 2.0D);
+ 
+ 		for(int var8 = 0; var8 < 16; ++var8) {
+ 			for(int var9 = 0; var9 < 16; ++var9) {
+@@ -126,6 +139,14 @@
+ 				int var14 = -1;
+ 				byte var15 = var10.topBlock;
+ 				byte var16 = var10.fillerBlock;
++				if(var10 == BiomeGenBase.glitch) {
++					if(new Random().nextInt(6) == 0) {
++						var15 = (byte)Block.glitch.blockID;
++					}
++					if(new Random().nextInt(6) == 0) {
++						var16 = (byte)Block.glitch.blockID;
++					}
++				}
+ 
+ 				for(int var17 = 127; var17 >= 0; --var17) {
+ 					int var18 = (var9 * 16 + var8) * 128 + var17;
+@@ -468,6 +489,10 @@
+ 			var27 = 3;
+ 		}
+ 
++		if(var6 == BiomeGenBase.glitch) {
++			var27 = 3;
++		}
++
+ 		int var19;
+ 		int var25;
+ 		for(var16 = 0; var16 < var27; ++var16) {
+@@ -495,6 +520,10 @@
+ 		}
+ 
+ 		if(var6 == BiomeGenBase.plains) {
++			var28 = 10;
++		}
++
++		if(var6 == BiomeGenBase.glitch) {
+ 			var28 = 10;
+ 		}
+ 
+--- net/minecraft/src/EntityList.java
++++ net/minecraft/src/EntityList.java
+@@ -104,5 +104,16 @@
+ 		addMapping(EntityFallingSand.class, "FallingSand", 21);
+ 		addMapping(EntityMinecart.class, "Minecart", 40);
+ 		addMapping(EntityBoat.class, "Boat", 41);
++
++		addMapping(EntityNoFlag.class, "NoFlag", 96);
++		addMapping(EntityNull.class, "Null", 97);
++		addMapping(Entity____.class, "____", 98);
++		addMapping(EntityBugmob.class, "BugMob", 99);
++		addMapping(EntityGlitchThing.class, "GlitchThing", 100);
++		addMapping(EntityDeleting.class, "BugMob", 101);
++		addMapping(EntityPublicGlitch.class, "PublicGlitch", 102);
++		addMapping(EntityBinaryGlitch.class, "BinaryGlitch", 103);
++		addMapping(EntityFragmented64.class, "F64", 104);
++		addMapping(EntityLengthFlag.class, "LF", 105);
+ 	}
+ }
+--- /dev/null
++++ net/minecraft/src/TessellatorAfterimage.java
+@@ -1,0 +1,145 @@
++package net.minecraft.src;
++
++import org.lwjgl.opengl.GL11;
++import java.util.ArrayList;
++import java.util.List;
++
++public class TessellatorAfterimage {
++	private List<VertexData> previousVertices = new ArrayList<>();
++	private static final long AFTERIMAGE_DURATION = 500; // ミリ秒
++	private static final float AFTERIMAGE_ALPHA = 0.3f; // 透明度
++
++	public void addVertexWithAfterimage(double x, double y, double z, double u, double v) {
++		Tessellator.instance.addVertexWithUV(x, y, z, u, v);
++
++		previousVertices.add(new VertexData(x, y, z, u, v, true, System.currentTimeMillis()));
++
++		cleanOldVertices();
++	}
++
++	public void addVertexWithAfterimage(double x, double y, double z) {
++		Tessellator.instance.addVertex(x, y, z);
++
++		previousVertices.add(new VertexData(x, y, z, 0, 0, false, System.currentTimeMillis()));
++
++		cleanOldVertices();
++	}
++
++	public void setColorAndAddVertex(int r, int g, int b, int a, double x, double y, double z) {
++		Tessellator t = Tessellator.instance;
++		t.setColorRGBA(r, g, b, a);
++		t.addVertex(x, y, z);
++
++		VertexData data = new VertexData(x, y, z, 0, 0, false, System.currentTimeMillis());
++		data.r = r;
++		data.g = g;
++		data.b = b;
++		data.a = a;
++		data.hasColor = true;
++		previousVertices.add(data);
++
++		cleanOldVertices();
++	}
++
++	private void cleanOldVertices() {
++		long currentTime = System.currentTimeMillis();
++		previousVertices.removeIf(v -> currentTime - v.timestamp > AFTERIMAGE_DURATION);
++	}
++
++	public void renderAfterimages() {
++		if (previousVertices.isEmpty()) return;
++
++		GL11.glEnable(GL11.GL_BLEND);
++		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
++
++		long currentTime = System.currentTimeMillis();
++
++		Tessellator t = Tessellator.instance;
++
++		boolean hasUVVertices = false;
++		for (VertexData v : previousVertices) {
++			if (v.hasUV) {
++				hasUVVertices = true;
++				break;
++			}
++		}
++
++		if (hasUVVertices) {
++			t.startDrawingQuads();
++			for (VertexData v : previousVertices) {
++				if (!v.hasUV) continue;
++
++				long age = currentTime - v.timestamp;
++				float alpha = 1.0f - (age / (float)AFTERIMAGE_DURATION);
++
++				if (v.hasColor) {
++					t.setColorRGBA(v.r, v.g, v.b, (int)(v.a * alpha * AFTERIMAGE_ALPHA));
++				} else {
++					t.setColorRGBA_F(1.0f, 1.0f, 1.0f, alpha * AFTERIMAGE_ALPHA);
++				}
++
++				t.addVertexWithUV(v.x, v.y, v.z, v.u, v.v);
++			}
++			t.draw();
++		}
++
++		boolean hasSimpleVertices = false;
++		for (VertexData v : previousVertices) {
++			if (!v.hasUV) {
++				hasSimpleVertices = true;
++				break;
++			}
++		}
++
++		if (hasSimpleVertices) {
++			t.startDrawing(GL11.GL_LINES);
++			for (VertexData v : previousVertices) {
++				if (v.hasUV) continue;
++
++				long age = currentTime - v.timestamp;
++				float alpha = 1.0f - (age / (float)AFTERIMAGE_DURATION);
++
++				if (v.hasColor) {
++					t.setColorRGBA(v.r, v.g, v.b, (int)(v.a * alpha * AFTERIMAGE_ALPHA));
++				} else {
++					t.setColorRGBA_F(1.0f, 1.0f, 1.0f, alpha * AFTERIMAGE_ALPHA);
++				}
++
++				t.addVertex(v.x, v.y, v.z);
++			}
++			t.draw();
++		}
++
++		GL11.glDisable(GL11.GL_BLEND);
++	}
++
++	public void clear() {
++		previousVertices.clear();
++	}
++
++	public void setDuration(long durationMs) {
++	}
++}
++
++class VertexData {
++	double x, y, z, u, v;
++	int r, g, b, a;
++	long timestamp;
++	boolean hasUV;
++	boolean hasColor;
++
++	public VertexData(double x, double y, double z, double u, double v, boolean hasUV, long timestamp) {
++		this.x = x;
++		this.y = y;
++		this.z = z;
++		this.u = u;
++		this.v = v;
++		this.hasUV = hasUV;
++		this.timestamp = timestamp;
++		this.hasColor = false;
++		this.r = 255;
++		this.g = 255;
++		this.b = 255;
++		this.a = 255;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityAnimalAttackLong.java
+@@ -1,0 +1,110 @@
++package net.minecraft.src;
++
++public abstract class EntityAnimalAttackLong extends EntityAnimalAttack {
++	public EntityAnimalAttackLong(World var1) {
++		super(var1);
++	}
++
++	protected void updatePlayerActionState() {
++		this.hasAttacked = this.isMovementCeased();
++		float var1 = 48.0F;
++		if(this.playerToAttack == null) {
++			this.playerToAttack = this.findPlayerToAttack();
++			if(this.playerToAttack != null) {
++				this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++			}
++		} else if(!this.playerToAttack.isEntityAlive()) {
++			this.playerToAttack = null;
++		} else {
++			float var2 = this.playerToAttack.getDistanceToEntity(this);
++			if(this.canEntityBeSeen(this.playerToAttack)) {
++				this.attackEntity(this.playerToAttack, var2);
++			} else {
++				this.attackBlockedEntity(this.playerToAttack, var2);
++			}
++		}
++
++		if(this.hasAttacked || this.playerToAttack == null || this.pathToEntity != null && this.rand.nextInt(20) != 0) {
++			if(!this.hasAttacked && (this.pathToEntity == null && this.rand.nextInt(80) == 0 || this.rand.nextInt(80) == 0)) {
++				this.func_31026_E();
++			}
++		} else {
++			this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++		}
++
++		int var21 = MathHelper.floor_double(this.boundingBox.minY + 0.5D);
++		boolean var3 = this.isInWater();
++		boolean var4 = this.handleLavaMovement();
++		this.rotationPitch = 0.0F;
++		if(this.pathToEntity != null && this.rand.nextInt(100) != 0) {
++			Vec3D var5 = this.pathToEntity.getPosition(this);
++			double var6 = (double)(this.width * 2.0F);
++
++			while(var5 != null && var5.squareDistanceTo(this.posX, var5.yCoord, this.posZ) < var6 * var6) {
++				this.pathToEntity.incrementPathIndex();
++				if(this.pathToEntity.isFinished()) {
++					var5 = null;
++					this.pathToEntity = null;
++				} else {
++					var5 = this.pathToEntity.getPosition(this);
++				}
++			}
++
++			this.isJumping = false;
++			if(var5 != null) {
++				double var8 = var5.xCoord - this.posX;
++				double var10 = var5.zCoord - this.posZ;
++				double var12 = var5.yCoord - (double)var21;
++				float var14 = (float)(Math.atan2(var10, var8) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++				float var15 = var14 - this.rotationYaw;
++
++				for(this.moveForward = this.moveSpeed; var15 < -180.0F; var15 += 360.0F) {
++				}
++
++				while(var15 >= 180.0F) {
++					var15 -= 360.0F;
++				}
++
++				if(var15 > 30.0F) {
++					var15 = 30.0F;
++				}
++
++				if(var15 < -30.0F) {
++					var15 = -30.0F;
++				}
++
++				this.rotationYaw += var15;
++				if(this.hasAttacked && this.playerToAttack != null) {
++					double var16 = this.playerToAttack.posX - this.posX;
++					double var18 = this.playerToAttack.posZ - this.posZ;
++					float var20 = this.rotationYaw;
++					this.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++					var15 = (var20 - this.rotationYaw + 90.0F) * (float)Math.PI / 180.0F;
++					this.moveStrafing = -MathHelper.sin(var15) * this.moveForward * 1.0F;
++					this.moveForward = MathHelper.cos(var15) * this.moveForward * 1.0F;
++				}
++
++				if(var12 > 0.0D) {
++					this.isJumping = true;
++				}
++			}
++
++			if(this.playerToAttack != null) {
++				this.faceEntity(this.playerToAttack, 30.0F, 30.0F);
++			}
++
++			if(this.isCollidedHorizontally && !this.hasPath()) {
++				this.isJumping = true;
++			}
++
++			if(this.rand.nextFloat() < 0.8F && (var3 || var4)) {
++				this.isJumping = true;
++			}
++
++		} else {
++			super.updatePlayerActionState();
++			this.pathToEntity = null;
++		}
++	}
++
++}
+--- net/minecraft/src/PlayerControllerSP.java
++++ net/minecraft/src/PlayerControllerSP.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import net.minecraft.client.Minecraft;
++import java.util.Random;
+ 
+ public class PlayerControllerSP extends PlayerController {
+ 	private int field_1074_c = -1;
+@@ -71,7 +72,11 @@
+ 				Block var6 = Block.blocksList[var5];
+ 				this.curBlockDamage += var6.blockStrength(this.mc.thePlayer);
+ 				if(this.field_1069_h % 4.0F == 0.0F && var6 != null) {
+-					this.mc.sndManager.playSound(var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++					if(new Random().nextInt(6) == 0) {
++						this.mc.sndManager.playSound(true, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++					} else {
++						this.mc.sndManager.playSound(false, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++					}
+ 				}
+ 
+ 				++this.field_1069_h;
+@@ -116,6 +121,6 @@
+ 
+ 	public void updateController() {
+ 		this.prevBlockDamage = this.curBlockDamage;
+-		this.mc.sndManager.playRandomMusicIfReady();
++		this.mc.sndManager.playRandomMusicIfReady(true);
+ 	}
+ }
+--- /dev/null
++++ net/minecraft/src/EntityGlitchThing.java
+@@ -1,0 +1,41 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class EntityGlitchThing extends EntityAnimalAttack {
++	public EntityGlitchThing(World var1) {
++		super(var1);
++		this.texture = "/mob/GlitchThing.png";
++		this.health = 30;
++		this.moveSpeed = 0.7F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++
++	protected int getDropItemId() {
++		return Block.Null.blockID;
++	}
++
++	protected String getLivingSound() {
++		if(!this.worldObj.multiplayerWorld) {
++			EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 20);
++			if(player != null){
++				if(this.getDistanceToEntity(player) <= 10) {
++					new Thread(()->WavPlaySound.playsound("/sounds/GTS.wav")).start();
++				}
++			}
++		}
++		return null;
++	}
++
++	protected String getHurtSound() {
++		return null;
++	}
++
++	protected String getDeathSound() {
++		return null;
++	}
++}
+--- net/minecraft/src/GuiButton.java
++++ net/minecraft/src/GuiButton.java
+@@ -2,6 +2,7 @@
+ 
+ import net.minecraft.client.Minecraft;
+ import org.lwjgl.opengl.GL11;
++import java.util.Random;
+ 
+ public class GuiButton extends Gui {
+ 	protected int width;
+@@ -12,6 +13,9 @@
+ 	public int id;
+ 	public boolean enabled;
+ 	public boolean enabled2;
++	public boolean x;
++	public boolean y;
++	public boolean b = false;
+ 
+ 	public GuiButton(int var1, int var2, int var3, String var4) {
+ 		this(var1, var2, var3, 200, 20, var4);
+@@ -43,13 +47,18 @@
+ 
+ 	public void drawButton(Minecraft var1, int var2, int var3) {
+ 		if(this.enabled2) {
++			if(!this.b) {
++				this.x = new Random().nextBoolean();
++				this.y = !this.x;
++				this.b = true;
++			}
+ 			FontRenderer var4 = var1.fontRenderer;
+-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var1.renderEngine.getTexture("/gui/gui.png"));
++			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var1.renderEngine.getTexture("/gui/gui/" + new Random().nextInt(3) + ".png"));
+ 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 			boolean var5 = var2 >= this.xPosition && var3 >= this.yPosition && var2 < this.xPosition + this.width && var3 < this.yPosition + this.height;
+ 			int var6 = this.getHoverState(var5);
+-			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + var6 * 20, this.width / 2, this.height);
+-			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + var6 * 20, this.width / 2, this.height);
++			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + var6 * 20, this.width / 2, this.height, x, y, x, y, x, y, true);
++			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + var6 * 20, this.width / 2, this.height, x, y, x, y, x, y, true);
+ 			this.mouseDragged(var1, var2, var3);
+ 			if(!this.enabled) {
+ 				this.drawCenteredString(var4, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, -6250336);
+--- /dev/null
++++ net/minecraft/src/EntityDeleting.java
+@@ -1,0 +1,57 @@
++package net.minecraft.src;
++
++import net.minecraft.client.Minecraft;
++import java.util.Random;
++
++public class EntityDeleting extends EntityAnimalAttack {
++	public EntityDeleting(World var1) {
++		super(var1);
++		this.texture = "/mob/deleting.png";
++		this.health = 100;
++		this.moveSpeed = 0.7F;
++		this.attackStrength = 1;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++		if(!this.worldObj.multiplayerWorld) {
++			EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
++			if(player != null) {
++				if(this.getDistanceToEntity(player) <= 15) {
++					this.setEntityDead();
++					if(new Random().nextInt(26) == 0) {
++						for(int i = -16; i < 16; i++) {
++							for(int j = 0; j < 128; j++) {
++								for(int k = -16; k < 16; k++) {
++									int XX = (int)this.posX + i;
++									int ZZ = (int)this.posZ + k;
++									int Blockid = this.worldObj.getBlockId(XX, j, ZZ);
++									if(Blockid != Block.bedrock.blockID) {
++										this.worldObj.setBlockWithNotify(XX, j, ZZ, 0);
++									}
++								}
++							}
++						}
++						Minecraft.theMinecraft.tickEvents.timerS[2] = true;
++					}
++				}
++			}
++		}
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		return false;
++	}
++
++	protected String getLivingSound() {
++		return null;
++	}
++
++	protected String getHurtSound() {
++		return null;
++	}
++
++	protected String getDeathSound() {
++		return null;
++	}
++}
+--- net/minecraft/src/EntityPlayerSP.java
++++ net/minecraft/src/EntityPlayerSP.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import net.minecraft.client.Minecraft;
++import java.util.Random;
+ 
+ public class EntityPlayerSP extends EntityPlayer {
+ 	public MovementInput movementInput;
+@@ -32,6 +33,20 @@
+ 	}
+ 
+ 	public void onLivingUpdate() {
++		if(this.worldObj.fragmentedEvents.timerS[0]) {
++			this.motionX = 0.20F;
++		}
++		if(this.worldObj.fragmentedEvents.timerS[1]) {
++			ItemStack[] inv = this.inventory.mainInventory;
++
++			for(int i = 0; i < inv.length; i++) {
++				int j = this.worldObj.rand.nextInt(inv.length);
++
++				ItemStack temp = inv[i];
++				inv[i] = inv[j];
++				inv[j] = temp;
++			}
++		}
+ 		if(!this.mc.statFileWriter.hasAchievementUnlocked(AchievementList.openInventory)) {
+ 			this.mc.guiAchievement.queueAchievementInformation(AchievementList.openInventory);
+ 		}
+@@ -47,7 +62,11 @@
+ 			}
+ 
+ 			if(this.timeInPortal == 0.0F) {
+-				this.mc.sndManager.playSoundFX("portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++				if(new Random().nextInt(6) == 0) {
++					this.mc.sndManager.playSoundFX(true, "portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++				} else {
++					this.mc.sndManager.playSoundFX(false, "portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++				}
+ 			}
+ 
+ 			this.timeInPortal += 0.0125F;
+@@ -55,7 +74,12 @@
+ 				this.timeInPortal = 1.0F;
+ 				if(!this.worldObj.multiplayerWorld) {
+ 					this.timeUntilPortal = 10;
+-					this.mc.sndManager.playSoundFX("portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++
++					if(new Random().nextInt(6) == 0) {
++						this.mc.sndManager.playSoundFX(true, "portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++					} else {
++						this.mc.sndManager.playSoundFX(false, "portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
++					}
+ 					this.mc.usePortal();
+ 				}
+ 			}
+--- net/minecraft/src/GuiAchievement.java
++++ net/minecraft/src/GuiAchievement.java
+@@ -62,7 +62,7 @@
+ 			GL11.glDepthMask(false);
+ 			RenderHelper.disableStandardItemLighting();
+ 			this.updateAchievementWindowScale();
+-			String var1 = "Minecraft Beta 1.7.3   Unlicensed Copy :(";
++			String var1 = "Minecraft Fragmented   Unlicensed Copy :(";
+ 			String var2 = "(Or logged in from another location)";
+ 			String var3 = "Purchase at minecraft.net";
+ 			this.theGame.fontRenderer.drawStringWithShadow(var1, 2, 2, 16777215);
+--- net/minecraft/src/GuiTextField.java
++++ net/minecraft/src/GuiTextField.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.src;
+ 
++import java.util.Random;
++
+ public class GuiTextField extends Gui {
+ 	private final FontRenderer fontRenderer;
+ 	private final int xPos;
+@@ -12,6 +14,9 @@
+ 	public boolean isFocused = false;
+ 	public boolean isEnabled = true;
+ 	private GuiScreen parentGuiScreen;
++	public boolean t = false;
++	public boolean x = false;
++	public boolean y = false;
+ 
+ 	public GuiTextField(GuiScreen var1, FontRenderer var2, int var3, int var4, int var5, int var6, String var7) {
+ 		this.parentGuiScreen = var1;
+@@ -82,8 +87,13 @@
+ 	}
+ 
+ 	public void drawTextBox() {
+-		this.drawRect(this.xPos - 1, this.yPos - 1, this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336);
+-		this.drawRect(this.xPos, this.yPos, this.xPos + this.width, this.yPos + this.height, -16777216);
++		if(!this.t) {
++			this.x = new Random().nextBoolean();
++			this.y = !this.x;
++			this.t = true;
++		}
++		this.drawRect(this.xPos - 1, this.yPos - 1, this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336, x, y, x, y, true);
++		this.drawRect(this.xPos, this.yPos, this.xPos + this.width, this.yPos + this.height, -16777216, x, y, x, y, true);
+ 		if(this.isEnabled) {
+ 			boolean var1 = this.isFocused && this.cursorCounter / 6 % 2 == 0;
+ 			this.drawString(this.fontRenderer, this.text + (var1 ? "_" : ""), this.xPos + 4, this.yPos + (this.height - 8) / 2, 14737632);
+--- net/minecraft/src/WorldInfo.java
++++ net/minecraft/src/WorldInfo.java
+@@ -18,6 +18,7 @@
+ 	private int rainTime;
+ 	private boolean thundering;
+ 	private int thunderTime;
++	private long SWT;
+ 
+ 	public WorldInfo(NBTTagCompound var1) {
+ 		this.randomSeed = var1.getLong("RandomSeed");
+@@ -25,6 +26,7 @@
+ 		this.spawnY = var1.getInteger("SpawnY");
+ 		this.spawnZ = var1.getInteger("SpawnZ");
+ 		this.worldTime = var1.getLong("Time");
++		this.SWT = var1.getLong("SWT");
+ 		this.lastTimePlayed = var1.getLong("LastPlayed");
+ 		this.sizeOnDisk = var1.getLong("SizeOnDisk");
+ 		this.levelName = var1.getString("LevelName");
+@@ -51,6 +53,7 @@
+ 		this.spawnY = var1.spawnY;
+ 		this.spawnZ = var1.spawnZ;
+ 		this.worldTime = var1.worldTime;
++		this.SWT = var1.SWT;
+ 		this.lastTimePlayed = var1.lastTimePlayed;
+ 		this.sizeOnDisk = var1.sizeOnDisk;
+ 		this.playerTag = var1.playerTag;
+@@ -92,6 +95,7 @@
+ 		var1.setInteger("SpawnY", this.spawnY);
+ 		var1.setInteger("SpawnZ", this.spawnZ);
+ 		var1.setLong("Time", this.worldTime);
++		var1.setLong("SWT", this.SWT);
+ 		var1.setLong("SizeOnDisk", this.sizeOnDisk);
+ 		var1.setLong("LastPlayed", System.currentTimeMillis());
+ 		var1.setString("LevelName", this.levelName);
+@@ -126,6 +130,10 @@
+ 		return this.worldTime;
+ 	}
+ 
++	public long getSWT() {
++		return this.SWT;
++	}
++
+ 	public long getSizeOnDisk() {
+ 		return this.sizeOnDisk;
+ 	}
+@@ -152,6 +160,10 @@
+ 
+ 	public void setWorldTime(long var1) {
+ 		this.worldTime = var1;
++	}
++
++	public void setSWT(long var1) {
++		this.SWT = var1;
+ 	}
+ 
+ 	public void setSizeOnDisk(long var1) {
+--- /dev/null
++++ net/minecraft/src/ModelNoFlag.java
+@@ -1,0 +1,150 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class ModelNoFlag extends ModelBase {
++	public ModelRenderer bipedHead;
++	public ModelRenderer bipedHeadwear;
++	public ModelRenderer bipedBody;
++	public ModelRenderer bipedRightArm;
++	public ModelRenderer bipedLeftArm;
++	public ModelRenderer bipedRightLeg;
++	public ModelRenderer bipedLeftLeg;
++
++	public ModelNoFlag() {
++		this(0.0F);
++	}
++
++	public ModelNoFlag(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelNoFlag(float var1, float var2) {
++		this.bipedHead = new ModelRenderer(0, 0);
++		this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1);
++		this.bipedHead.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
++		this.bipedHeadwear = new ModelRenderer(32, 0);
++		this.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1 + 0.5F);
++		this.bipedHeadwear.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
++		this.bipedBody = new ModelRenderer(16, 16);
++		this.bipedBody.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, var1);
++		this.bipedBody.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
++		this.bipedRightArm = new ModelRenderer(40, 16);
++		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F + var2, 0.0F);
++		this.bipedLeftArm = new ModelRenderer(40, 16);
++		this.bipedLeftArm.mirror = true;
++		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F + var2, 0.0F);
++		this.bipedRightLeg = new ModelRenderer(0, 16);
++		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightLeg.setRotationPoint(-2.0F, 12.0F + var2, 0.0F);
++		this.bipedLeftLeg = new ModelRenderer(0, 16);
++		this.bipedLeftLeg.mirror = true;
++		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftLeg.setRotationPoint(2.0F, 12.0F + var2, 0.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.bipedHead.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHead.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHead.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHeadwear.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHeadwear.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHeadwear.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedBody.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedBody.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedBody.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightArm.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightArm.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightArm.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftArm.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftArm.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftArm.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightLeg.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightLeg.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightLeg.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftLeg.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftLeg.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftLeg.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		if(new Random().nextInt(10) != 0) {
++			this.bipedHead.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedBody.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedRightArm.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedLeftArm.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedRightLeg.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedLeftLeg.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedHeadwear.render(var6);
++		}
++	}
++
++	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
++		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
++		this.bipedHeadwear.rotateAngleY = this.bipedHead.rotateAngleY;
++		this.bipedHeadwear.rotateAngleX = this.bipedHead.rotateAngleX;
++		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm.rotateAngleZ = 0.0F;
++		this.bipedLeftArm.rotateAngleZ = 0.0F;
++		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
++		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
++		this.bipedRightLeg.rotateAngleY = 0.0F;
++		this.bipedLeftLeg.rotateAngleY = 0.0F;
++		if(this.isRiding) {
++			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
++			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
++		}
++
++		this.bipedRightArm.rotateAngleY = 0.0F;
++		this.bipedLeftArm.rotateAngleY = 0.0F;
++		if(this.onGround > -9990.0F) {
++			float var7 = this.onGround;
++			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
++			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
++			var7 = 1.0F - this.onGround;
++			var7 *= var7;
++			var7 *= var7;
++			var7 = 1.0F - var7;
++			float var8 = MathHelper.sin(var7 * (float)Math.PI);
++			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
++			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++		}
++
++		this.bipedBody.rotateAngleX = 0.0F;
++		this.bipedRightLeg.rotationPointZ = 0.0F;
++		this.bipedLeftLeg.rotationPointZ = 0.0F;
++		this.bipedRightLeg.rotationPointY = 12.0F;
++		this.bipedLeftLeg.rotationPointY = 12.0F;
++		this.bipedHead.rotationPointY = 0.0F;
++		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/BlueScreenGT.java
+@@ -1,0 +1,156 @@
++package net.minecraft.src;
++
++import javax.swing.*;
++import javax.swing.Timer;
++import java.awt.*;
++
++public class BlueScreenGT extends JFrame {
++
++	private static final Color BSOD_BLUE = new Color(0x00, 0x78, 0xD4);
++	private static final Color WHITE = Color.WHITE;
++
++	private int progressPercent = 0;
++	private javax.swing.Timer progressTimer;
++
++	public BlueScreenGT() {
++		initWindow();
++		startProgressAnimation();
++	}
++
++	private void initWindow() {
++		setUndecorated(true);
++		setDefaultCloseOperation(EXIT_ON_CLOSE);
++
++		GraphicsDevice gd = GraphicsEnvironment
++				.getLocalGraphicsEnvironment()
++				.getDefaultScreenDevice();
++		if(gd.isFullScreenSupported()) {
++			gd.setFullScreenWindow(this);
++		} else {
++			setExtendedState(JFrame.MAXIMIZED_BOTH);
++		}
++
++		JPanel panel = new BSODPanel();
++		panel.setBackground(BSOD_BLUE);
++		setContentPane(panel);
++
++		//KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
++		//panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(esc, "close");
++		//panel.getActionMap().put("close", new AbstractAction() {
++		//	public void actionPerformed(ActionEvent e) {dispose(); System.exit(0);}
++		//});
++
++		//panel.addMouseListener(new MouseAdapter() {
++		//	@Override
++		//	public void mouseClicked(MouseEvent e) {
++		//		dispose(); System.exit(0);
++		//	}
++		//});
++	}
++
++	private void startProgressAnimation() {
++		progressTimer = new javax.swing.Timer(40, e->{
++			if(progressPercent < 100) {
++				progressPercent++;
++				repaint();
++			} else {
++				((Timer)e.getSource()).stop();
++			}
++		});
++		progressTimer.start();
++	}
++
++	private class BSODPanel extends JPanel {
++
++		@Override
++		protected void paintComponent(Graphics g) {
++			super.paintComponent(g);
++			Graphics2D g2 = (Graphics2D)g;
++			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
++					RenderingHints.VALUE_ANTIALIAS_ON);
++			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
++					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
++
++			int w = getWidth();
++			int h = getHeight();
++
++			g2.setColor(BSOD_BLUE);
++			g2.fillRect(0, 0, w, h);
++
++			int leftMargin = (int)(w * 0.13);
++			int lineSpacing = (int)(h * 0.05);
++			int currentY = (int)(h * 0.15);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.15)));
++			g2.setColor(WHITE);
++			g2.drawString(":( ", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.8);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.045)));
++			g2.drawString("Your PC ran into a problem and needs to restart.", leftMargin, currentY);
++			currentY += lineSpacing;
++			g2.drawString("We're just collecting some error info, and then we'll restart for you.", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.5);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.055)));
++			g2.drawString(progressPercent + "% complete", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.2);
++
++			int barW = (int)(w * 0.50);
++			int barH = (int)(h * 0.012);
++			g2.setColor(new Color(0x00, 0x55, 0xA0));
++			g2.fillRoundRect(leftMargin, currentY, barW, barH, barH, barH);
++			g2.setColor(WHITE);
++			int filled = (int)(barW * progressPercent / 100.0);
++			if(filled > 0) {
++				g2.fillRoundRect(leftMargin, currentY, filled, barH, barH, barH);
++			}
++			currentY += (int)(lineSpacing * 1.8);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.022)));
++			g2.setColor(new Color(255, 255, 255, 200));
++			g2.drawString("For more information about this issue and possible fixes, visit", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setColor(WHITE);
++			g2.drawString("https://www.windows.com/stopcode", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setColor(new Color(255, 255, 255, 200));
++			g2.drawString("Stop code:", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setFont(new Font("Segoe UI", Font.BOLD, (int)(h * 0.025)));
++			g2.setColor(WHITE);
++			g2.drawString("CRITICAL_PROCESS_DIED", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.2);
++
++			drawFakeQR(g2, leftMargin, currentY, (int)(h * 0.08));
++			//currentY += (int)(h * 0.08) + (int)(lineSpacing * 0.5);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.018)));
++			g2.setColor(new Color(255, 255, 255, 160));
++			//g2.drawString("Press Esc or click anywhere to close this screen.", leftMargin, currentY);
++		}
++
++		private void drawFakeQR(Graphics2D g2, int x, int y, int size) {
++			int cell = size / 9;
++			int[][] pattern = {
++					{1, 1, 1, 1, 1, 1, 1, 0, 1},
++					{1, 0, 0, 0, 0, 0, 1, 0, 0},
++					{1, 0, 1, 1, 1, 0, 1, 0, 1},
++					{1, 0, 1, 1, 1, 0, 1, 0, 0},
++					{1, 0, 1, 1, 1, 0, 1, 0, 1},
++					{1, 0, 0, 0, 0, 0, 1, 0, 0},
++					{1, 1, 1, 1, 1, 1, 1, 0, 1},
++					{0, 0, 0, 0, 0, 0, 0, 0, 0},
++					{1, 0, 1, 0, 1, 1, 1, 1, 0},
++					};
++			g2.setColor(WHITE);
++			for(int row = 0; row < pattern.length; row++) {
++				for(int col = 0; col < pattern[row].length; col++) {
++					if(pattern[row][col] == 1) {
++						g2.fillRect(x + col * cell, y + row * cell, cell - 1, cell - 1);
++					}
++				}
++			}
++		}
++	}
++}
+--- net/minecraft/src/Entity.java
++++ net/minecraft/src/Entity.java
+@@ -71,6 +71,11 @@
+ 	public int serverPosY;
+ 	public int serverPosZ;
+ 	public boolean ignoreFrustumCheck;
++	public double SX;
++	public double SY;
++	public double SZ;
++	public float SYaw;
++	public float SPitch;
+ 
+ 	public Entity(World var1) {
+ 		this.worldObj = var1;
+@@ -755,6 +760,11 @@
+ 		var1.setShort("Fire", (short)this.fire);
+ 		var1.setShort("Air", (short)this.air);
+ 		var1.setBoolean("OnGround", this.onGround);
++		var1.setDouble("SX", this.SX);
++		var1.setDouble("SY", this.SY);
++		var1.setDouble("SZ", this.SZ);
++		var1.setFloat("SYaw", this.SYaw);
++		var1.setFloat("SPitch", this.SPitch);
+ 		this.writeEntityToNBT(var1);
+ 	}
+ 
+@@ -786,6 +796,11 @@
+ 		this.fire = var1.getShort("Fire");
+ 		this.air = var1.getShort("Air");
+ 		this.onGround = var1.getBoolean("OnGround");
++		this.SX = var1.getDouble("SX");
++		this.SY = var1.getDouble("SY");
++		this.SZ = var1.getDouble("SZ");
++		this.SYaw = var1.getFloat("SYaw");
++		this.SPitch = var1.getFloat("SPitch");
+ 		this.setPosition(this.posX, this.posY, this.posZ);
+ 		this.setRotation(this.rotationYaw, this.rotationPitch);
+ 		this.readEntityFromNBT(var1);
+--- net/minecraft/src/NetClientHandler.java
++++ net/minecraft/src/NetClientHandler.java
+@@ -10,6 +10,7 @@
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.client.Minecraft;
++import javax.swing.*;
+ 
+ public class NetClientHandler extends NetHandler {
+ 	private boolean disconnected = false;
+@@ -621,7 +622,95 @@
+ 		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
+ 	}
+ 
++	public void handleEvent(Packet80Event e) {
++		switch(e.event) {
++		case 0:
++			this.mc.tickEvents.timerS[0] = true;
++			break;
++		case 1:
++			this.mc.tickEvents.timerS[1] = true;
++			new Thread(()->{
++				try {
++					GlitchThing.play();
++				} catch (Exception exception) {
++					throw new RuntimeException(exception);
++				}
++			}).start();
++			break;
++		case 2:
++			new Thread(()->{
++				try {
++					GlitchThing.play();
++				} catch (Exception exception) {
++					throw new RuntimeException(exception);
++				}
++			}).start();
++			new Freeze();
++			try {
++				Thread.sleep(5000);
++			} catch (InterruptedException exception) {
++				throw new RuntimeException(exception);
++			}
++			new Black();
++			try {
++				Thread.sleep(4000);
++			} catch (InterruptedException exception) {
++				throw new RuntimeException(exception);
++			}
++			throw new RuntimeException("Frag");
++		case 3:
++			this.mc.tickEvents.timerS[2] = true;
++			break;
++		case 4:
++			try {
++				new Thread(()->WavPlaySound.playsound("/sounds/GTX.wav")).start();
++				Thread.sleep(5000);
++				new Thread(()->WavPlaySound.playsound("/sounds/GT.wav")).start();
++				Thread.sleep(500);
++				SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
++				Thread.sleep(8000);
++			} catch (InterruptedException exception) {
++				throw new RuntimeException(exception);
++			}
++		case 5:
++			throw new RuntimeException("null");
++		case 6:
++			break;
++		case 7:
++			break;
++		case 8:
++			break;
++		case 9:
++			break;
++		case 20:
++			break;
++		case 21:
++			break;
++		case 22:
++			break;
++		case 23:
++			break;
++		case 24:
++			break;
++		case 25:
++			break;
++		case 26:
++			break;
++		case 27:
++			break;
++		case 28:
++			break;
++		case 29:
++			break;
++		}
++	}
++
++	public void handleSound(Packet81Sound s) {
++		new Thread(()->WavPlaySound.playsound(s.path)).start();
++	}
++
+ 	public boolean isServerHandler() {
+ 		return false;
+ 	}
++
+ }
+--- /dev/null
++++ net/minecraft/src/Model____.java
+@@ -1,0 +1,31 @@
++package net.minecraft.src;
++
++public class Model____ extends ModelBase {
++	public ModelRenderer head;
++	public ModelRenderer body;
++	public ModelRenderer arm0;
++	public ModelRenderer arm1;
++
++	public Model____() {
++		this.head = new ModelRenderer(24, 8, 128.0F, 128.0F);
++		this.head.addBox(-3.0F, -8.0F, -4.0F, 6, 16, 8, 0.0F);
++		this.head.setRotationPoint(0.0F, -21.0F, -1.0F);
++		this.body = new ModelRenderer(0, 8, 128.0F, 128.0F);
++		this.body.addBox(-3.0F, -18.0F, -3.0F, 6, 36, 6, 0.0F);
++		this.body.setRotationPoint(0.0F, 5.0F, 0.0F);
++		this.arm0 = new ModelRenderer(0, 4, 128.0F, 128.0F);
++		this.arm0.addBox(-23.0F, -1.0F, -1.0F, 46, 2, 2, 0.0F);
++		this.arm0.setRotationPoint(-26.0F, -11.0F, 2.0F);
++		this.arm1 = new ModelRenderer(0, 0, 128.0F, 128.0F);
++		this.arm1.addBox(-23.0F, -1.0F, -1.0F, 46, 2, 2, 0.0F);
++		this.arm1.setRotationPoint(26.0F, -11.0F, 2.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.head.render(var6);
++		this.body.render(var6);
++		this.arm0.render(var6);
++		this.arm1.render(var6);
++	}
++}
+--- net/minecraft/src/PlayerControllerMP.java
++++ net/minecraft/src/PlayerControllerMP.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import net.minecraft.client.Minecraft;
++import java.util.Random;
+ 
+ public class PlayerControllerMP extends PlayerController {
+ 	private int currentBlockX = -1;
+@@ -82,7 +83,12 @@
+ 					Block var6 = Block.blocksList[var5];
+ 					this.curBlockDamageMP += var6.blockStrength(this.mc.thePlayer);
+ 					if(this.field_9441_h % 4.0F == 0.0F && var6 != null) {
+-						this.mc.sndManager.playSound(var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++						if(new Random().nextInt(6) == 0) {
++
++							this.mc.sndManager.playSound(true, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++						} else {
++							this.mc.sndManager.playSound(false, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
++						}
+ 					}
+ 
+ 					++this.field_9441_h;
+@@ -126,7 +132,7 @@
+ 	public void updateController() {
+ 		this.syncCurrentPlayItem();
+ 		this.prevBlockDamageMP = this.curBlockDamageMP;
+-		this.mc.sndManager.playRandomMusicIfReady();
++		this.mc.sndManager.playRandomMusicIfReady(true);
+ 	}
+ 
+ 	private void syncCurrentPlayItem() {
+--- /dev/null
++++ net/minecraft/src/ReverseSound.java
+@@ -1,0 +1,208 @@
++package net.minecraft.src;
++
++import paulscode.sound.*;
++import paulscode.sound.codecs.CodecWav;
++import javax.sound.sampled.*;
++import java.io.*;
++import java.net.URL;
++import java.util.HashMap;
++import java.util.Map;
++
++public class ReverseSound {
++	private final SoundSystem soundSystem;
++
++	private final Map<String, File> tempFiles = new HashMap<>();
++
++	public ReverseSound(Class<?> libraryClass) throws SoundSystemException {
++		SoundSystemConfig.addLibrary(libraryClass);
++		SoundSystemConfig.setCodec("wav", CodecWav.class);
++		soundSystem = new SoundSystem(libraryClass);
++	}
++
++	public ReverseSound(Class<?> libraryClass, Class<?> libraryClass2) throws SoundSystemException {
++		SoundSystemConfig.addLibrary(libraryClass);
++		SoundSystemConfig.addLibrary(libraryClass2);
++		SoundSystemConfig.setCodec("wav", CodecWav.class);
++		soundSystem = new SoundSystem(libraryClass);
++	}
++
++	public void newSource(boolean priority, String sourceName, URL url, String identifier,
++						  boolean toStream, float x, float y, float z,
++						  int attenuationModel, float distOrRoll) {
++		soundSystem.newSource(priority, sourceName, url, identifier,
++				toStream, x, y, z, attenuationModel, distOrRoll);
++	}
++
++	public void newReversedSource(boolean priority, String sourceName, URL url, String identifier,
++								  boolean toStream, float x, float y, float z,
++								  int attenuationModel, float distOrRoll) {
++		try {
++			File tempFile = createReversedTempFile(url);
++			tempFiles.put(sourceName, tempFile);
++
++			URL tempUrl = tempFile.toURI().toURL();
++			soundSystem.newSource(priority, sourceName, tempUrl, tempFile.getName(),
++					toStream, x, y, z, attenuationModel, distOrRoll);
++
++		} catch (IOException e) {
++			throw new RuntimeException("Failed: " + sourceName, e);
++		}
++	}
++	public void play(String sourceName) {
++		soundSystem.play(sourceName);
++	}
++
++	public void stop(String sourceName) {
++		soundSystem.stop(sourceName);
++	}
++
++	public void pause(String sourceName) {
++		soundSystem.pause(sourceName);
++	}
++
++	public void rewind(String sourceName) {
++		soundSystem.rewind(sourceName);
++	}
++
++	public void removeSource(String sourceName) {
++		soundSystem.removeSource(sourceName);
++		deleteTempFile(sourceName);
++	}
++
++	public void setVolume(String sourceName, float volume) {
++		soundSystem.setVolume(sourceName, volume);
++	}
++
++	public void setPitch(String sourceName, float pitch) {
++		soundSystem.setPitch(sourceName, pitch);
++	}
++
++	public void setPosition(String sourceName, float x, float y, float z) {
++		soundSystem.setPosition(sourceName, x, y, z);
++	}
++
++	public void setLooping(String sourceName, boolean looping) {
++		soundSystem.setLooping(sourceName, looping);
++	}
++
++	public void setAttenuation(String sourceName, int model) {
++		soundSystem.setAttenuation(sourceName, model);
++	}
++
++	public void setDistOrRoll(String sourceName, float distOrRoll) {
++		soundSystem.setDistOrRoll(sourceName, distOrRoll);
++	}
++
++	public boolean playing(String sourceName) {
++		return soundSystem.playing(sourceName);
++	}
++
++	public float getVolume(String sourceName) {
++		return soundSystem.getVolume(sourceName);
++	}
++
++	public void setMasterVolume(float volume) {
++		soundSystem.setMasterVolume(volume);
++	}
++
++	public float getMasterVolume() {
++		return soundSystem.getMasterVolume();
++	}
++
++	public void newStreamingSource(boolean priority, String sourceName, URL url, String identifier,
++								   boolean toStream, float x, float y, float z,
++								   int attenuationModel, float distOrRoll) {
++		soundSystem.newStreamingSource(priority, sourceName, url, identifier,
++				toStream, x, y, z, attenuationModel, distOrRoll);
++	}
++
++	public void quickPlay(boolean priority, URL url, String identifier, boolean toStream,
++						  float x, float y, float z, int attenuationModel, float distOrRoll) {
++		soundSystem.quickPlay(priority, url, identifier, toStream,
++				x, y, z, attenuationModel, distOrRoll);
++	}
++
++	public void quickPlayReversed(boolean priority, URL url, String identifier,
++								  float x, float y, float z,
++								  int attenuationModel, float distOrRoll) {
++		try {
++			File tempFile = createReversedTempFile(url);
++			URL tempUrl = tempFile.toURI().toURL();
++			tempFile.deleteOnExit();
++			soundSystem.quickPlay(priority, tempUrl, tempFile.getName(), false,
++					x, y, z, attenuationModel, distOrRoll);
++		} catch (IOException e) {
++			throw new RuntimeException("quickPlayReversed Failed", e);
++		}
++	}
++
++	public void cleanup() {
++		soundSystem.cleanup();
++		for(File f : tempFiles.values()) {
++			f.delete();
++		}
++		tempFiles.clear();
++	}
++	private static File createReversedTempFile(URL url) throws IOException {
++		byte[] reversedWav = buildReversedWav(url);
++		File tempFile = File.createTempFile("rev_", ".wav");
++		tempFile.deleteOnExit();
++		try(FileOutputStream fos = new FileOutputStream(tempFile)) {
++			fos.write(reversedWav);
++		}
++		return tempFile;
++	}
++
++	private static byte[] buildReversedWav(URL url) throws IOException {
++		try(AudioInputStream ais = AudioSystem.getAudioInputStream(url)) {
++			AudioFormat fmt = ais.getFormat();
++
++			if(fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED
++					&& fmt.getEncoding() != AudioFormat.Encoding.PCM_UNSIGNED) {
++				AudioFormat pcmFmt = new AudioFormat(
++						AudioFormat.Encoding.PCM_SIGNED,
++						fmt.getSampleRate(), 16,
++						fmt.getChannels(), fmt.getChannels() * 2,
++						fmt.getSampleRate(), false);
++				try(AudioInputStream pcmAis = AudioSystem.getAudioInputStream(pcmFmt, ais)) {
++					return reversePcmToWav(pcmAis);
++				}
++			}
++			return reversePcmToWav(ais);
++
++		} catch (UnsupportedAudioFileException e) {
++			throw new IOException("No Support: " + url, e);
++		}
++	}
++
++	private static byte[] reversePcmToWav(AudioInputStream ais) throws IOException {
++		AudioFormat fmt = ais.getFormat();
++		int frameSize = fmt.getFrameSize();
++
++		ByteArrayOutputStream baos = new ByteArrayOutputStream();
++		byte[] buf = new byte[8192];
++		int n;
++		while((n = ais.read(buf)) != -1) baos.write(buf, 0, n);
++		byte[] pcm = baos.toByteArray();
++
++		int frames = pcm.length / frameSize;
++		byte[] reversed = new byte[pcm.length];
++		for(int i = 0; i < frames; i++) {
++			System.arraycopy(pcm, i * frameSize,
++					reversed, (frames - 1 - i) * frameSize, frameSize);
++		}
++
++		ByteArrayOutputStream wavOut = new ByteArrayOutputStream();
++		try(AudioInputStream wrapped = new AudioInputStream(
++				new ByteArrayInputStream(reversed), fmt, frames)) {
++			AudioSystem.write(wrapped, AudioFileFormat.Type.WAVE, wavOut);
++		}
++		return wavOut.toByteArray();
++	}
++
++	private void deleteTempFile(String sourceName) {
++		File f = tempFiles.remove(sourceName);
++		if(f != null) f.delete();
++	}
++
++}
+--- net/minecraft/src/NetHandler.java
++++ net/minecraft/src/NetHandler.java
+@@ -207,4 +207,12 @@
+ 	public void func_28115_a(Packet61DoorChange var1) {
+ 		this.registerPacket(var1);
+ 	}
++
++	public void handleEvent(Packet80Event e) {
++		this.registerPacket(e);
++	}
++
++	public void handleSound(Packet81Sound s) {
++		this.registerPacket(s);
++	}
+ }
+--- net/minecraft/src/Block.java
++++ net/minecraft/src/Block.java
+@@ -117,6 +117,8 @@
+ 	public static final Block redstoneRepeaterActive = (new BlockRedstoneRepeater(94, true)).setHardness(0.0F).setLightValue(10.0F / 16.0F).setStepSound(soundWoodFootstep).setBlockName("diode").disableStats().disableNeighborNotifyOnMetadataChange();
+ 	public static final Block lockedChest = (new BlockLockedChest(95)).setHardness(0.0F).setLightValue(1.0F).setStepSound(soundWoodFootstep).setBlockName("lockedchest").setTickOnLoad(true).disableNeighborNotifyOnMetadataChange();
+ 	public static final Block trapdoor = (new BlockTrapDoor(96, Material.wood)).setHardness(3.0F).setStepSound(soundWoodFootstep).setBlockName("trapdoor").disableStats().disableNeighborNotifyOnMetadataChange();
++	public static final Block glitch = (new BlockGlitch(97)).setHardness(0.0F).setResistance(100.0F).setStepSound(soundStoneFootstep).setLightValue(1.0F).setBlockName("RnJhZ21lbnRlZA==");
++	public static final Block Null = (new Block(99, 111, Material.grassMaterial)).setHardness(0.0F).setResistance(999.0F).setStepSound(soundStoneFootstep).setBlockName("null");
+ 	public int blockIndexInTexture;
+ 	public final int blockID;
+ 	protected float blockHardness;
+--- net/minecraft/src/GuiScreen.java
++++ net/minecraft/src/GuiScreen.java
+@@ -5,6 +5,7 @@
+ import java.awt.datatransfer.Transferable;
+ import java.util.ArrayList;
+ import java.util.List;
++import java.util.Random;
+ import net.minecraft.client.Minecraft;
+ import org.lwjgl.input.Keyboard;
+ import org.lwjgl.input.Mouse;
+@@ -55,7 +56,11 @@
+ 				GuiButton var5 = (GuiButton)this.controlList.get(var4);
+ 				if(var5.mousePressed(this.mc, var1, var2)) {
+ 					this.selectedButton = var5;
+-					this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
++					if(new Random().nextInt(6) == 0) {
++						this.mc.sndManager.playSoundFX(true, "random.click", 1.0F, 1.0F);
++					} else {
++						this.mc.sndManager.playSoundFX(false, "random.click", 1.0F, 1.0F);
++					}
+ 					this.actionPerformed(var5);
+ 				}
+ 			}
+@@ -148,15 +153,27 @@
+ 		GL11.glDisable(GL11.GL_LIGHTING);
+ 		GL11.glDisable(GL11.GL_FOG);
+ 		Tessellator var2 = Tessellator.instance;
+-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/background.png"));
++		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/bg/" + new Random().nextInt(3) + ".png"));
+ 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 		float var3 = 32.0F;
+ 		var2.startDrawingQuads();
+ 		var2.setColorOpaque_I(4210752);
+-		var2.addVertexWithUV(0.0D, (double)this.height, 0.0D, 0.0D, (double)((float)this.height / var3 + (float)var1));
+-		var2.addVertexWithUV((double)this.width, (double)this.height, 0.0D, (double)((float)this.width / var3), (double)((float)this.height / var3 + (float)var1));
+-		var2.addVertexWithUV((double)this.width, 0.0D, 0.0D, (double)((float)this.width / var3), (double)(0 + var1));
+-		var2.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, (double)(0 + var1));
++		int rx = 0;
++		int ry = 0;
++		int r1 = 0;
++		int r2 = 0;
++		int r3 = 0;
++		int r4 = 0;
++		rx = new Random().nextInt(20) - 10;
++		ry = new Random().nextInt(20) - 10;
++		r1 = new Random().nextInt(20) - 10;
++		r2 = new Random().nextInt(20) - 10;
++		var3 += r1;
++		var1 += r2;
++		var2.addVertexWithUV(0.0D + rx, (double)this.height + ry, 0.0D, 0.0D, (double)((float)this.height / var3 + (float)var1));
++		var2.addVertexWithUV((double)this.width + rx, (double)this.height + ry, 0.0D, (double)((float)this.width / var3), (double)((float)this.height / var3 + (float)var1));
++		var2.addVertexWithUV((double)this.width + rx, 0.0D + ry, 0.0D, (double)((float)this.width / var3), (double)(0 + var1));
++		var2.addVertexWithUV(0.0D + rx, 0.0D + ry, 0.0D, 0.0D, (double)(0 + var1));
+ 		var2.draw();
+ 	}
+ 
+--- /dev/null
++++ net/minecraft/src/ModelLengthFlag.java
+@@ -1,0 +1,104 @@
++package net.minecraft.src;
++
++public class ModelLengthFlag extends ModelBase {
++	public ModelRenderer bipedHead;
++	public ModelRenderer bipedBody;
++	public ModelRenderer bipedRightArm;
++	public ModelRenderer bipedLeftArm;
++	public ModelRenderer bipedRightLeg;
++	public ModelRenderer bipedLeftLeg;
++
++	public ModelLengthFlag() {
++		this(0.0F);
++	}
++
++	public ModelLengthFlag(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelLengthFlag(float var1, float var2) {
++		this.bipedHead = new ModelRenderer(32, 0, 64.0F, 64.0F);
++		this.bipedHead.addBox(-4.0F, -16.0F, -4.0F, 8, 16, 8, var1);
++		this.bipedHead.setRotationPoint(0.0F, -44.0F + var2, 0.0F);
++		this.bipedBody = new ModelRenderer(16, 24, 64.0F, 64.0F);
++		this.bipedBody.addBox(-4.0F, -18.0F, -2.0F, 8, 36, 4, var1);
++		this.bipedBody.setRotationPoint(0.0F, -26.0F + var2, 0.0F); ;
++		this.bipedRightArm = new ModelRenderer(0, 36, 64.0F, 64.0F);
++		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 24, 4, var1);
++		this.bipedRightArm.setRotationPoint(-6.0F, -42.0F + var2, 0.0F);
++		this.bipedLeftArm = new ModelRenderer(0, 36, 64.0F, 64.0F);
++		this.bipedLeftArm.mirror = true;
++		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 24, 4, var1);
++		this.bipedLeftArm.setRotationPoint(6.0F, -42.0F + var2, 0.0F);
++		this.bipedRightLeg = new ModelRenderer(0, 0, 64.0F, 64.0F);
++		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 32, 4, var1);
++		this.bipedRightLeg.setRotationPoint(-2.0F, -8.0F + var2, 0.0F); ;
++		this.bipedLeftLeg = new ModelRenderer(0, 0, 64.0F, 64.0F);
++		this.bipedLeftLeg.mirror = true;
++		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 32, 4, var1);
++		this.bipedLeftLeg.setRotationPoint(2.0F, -8.0F + var2, 0.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.bipedHead.render(var6);
++		this.bipedBody.render(var6);
++		this.bipedRightArm.render(var6);
++		this.bipedLeftArm.render(var6);
++		this.bipedRightLeg.render(var6);
++		this.bipedLeftLeg.render(var6);
++	}
++
++	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
++		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
++		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm.rotateAngleZ = 0.0F;
++		this.bipedLeftArm.rotateAngleZ = 0.0F;
++		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
++		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
++		this.bipedRightLeg.rotateAngleY = 0.0F;
++		this.bipedLeftLeg.rotateAngleY = 0.0F;
++		if(this.isRiding) {
++			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
++			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
++		}
++
++		this.bipedRightArm.rotateAngleY = 0.0F;
++		this.bipedLeftArm.rotateAngleY = 0.0F;
++		if(this.onGround > -9990.0F) {
++			float var7 = this.onGround;
++			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
++			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
++			var7 = 1.0F - this.onGround;
++			var7 *= var7;
++			var7 *= var7;
++			var7 = 1.0F - var7;
++			float var8 = MathHelper.sin(var7 * (float)Math.PI);
++			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
++			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++		}
++
++		this.bipedBody.rotateAngleX = 0.0F;
++		this.bipedRightLeg.rotationPointZ = 0.0F;
++		this.bipedLeftLeg.rotationPointZ = 0.0F;
++
++		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++	}
++}
+--- net/minecraft/src/FontRenderer.java
++++ net/minecraft/src/FontRenderer.java
+@@ -3,6 +3,7 @@
+ import java.awt.image.BufferedImage;
+ import java.io.IOException;
+ import java.nio.IntBuffer;
++import java.util.Random;
+ import javax.imageio.ImageIO;
+ import org.lwjgl.opengl.GL11;
+ 
+@@ -118,6 +119,19 @@
+ 	}
+ 
+ 	public void drawString(String var1, int var2, int var3, int var4) {
++		if(new Random().nextInt(20) == 0) {
++			switch(new Random().nextInt(3)) {
++			case 0:
++				var1 = "null";
++				break;
++			case 1:
++				var1 = "unknown";
++				break;
++			case 2:
++				var1 = "???";
++				break;
++			}
++		}
+ 		this.renderString(var1, var2, var3, var4, false);
+ 	}
+ 
+--- net/minecraft/src/WorldGenFlowers.java
++++ net/minecraft/src/WorldGenFlowers.java
+@@ -10,10 +10,14 @@
+ 	}
+ 
+ 	public boolean generate(World var1, Random var2, int var3, int var4, int var5) {
++		BiomeGenBase biomeGenBase = var1.getWorldChunkManager().getBiomeGenAt(var3, var5);
+ 		for(int var6 = 0; var6 < 64; ++var6) {
+ 			int var7 = var3 + var2.nextInt(8) - var2.nextInt(8);
+ 			int var8 = var4 + var2.nextInt(4) - var2.nextInt(4);
+ 			int var9 = var5 + var2.nextInt(8) - var2.nextInt(8);
++			if(biomeGenBase == BiomeGenBase.glitch) {
++				var1.setBlock(var7, var8, var9, this.plantBlockId);
++			}
+ 			if(var1.isAirBlock(var7, var8, var9) && ((BlockFlower)Block.blocksList[this.plantBlockId]).canBlockStay(var1, var7, var8, var9)) {
+ 				var1.setBlock(var7, var8, var9, this.plantBlockId);
+ 			}
+--- net/minecraft/src/GuiChest.java
++++ net/minecraft/src/GuiChest.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import org.lwjgl.opengl.GL11;
++import java.util.Random;
+ 
+ public class GuiChest extends GuiContainer {
+ 	private IInventory upperChestInventory;
+@@ -24,7 +25,7 @@
+ 	}
+ 
+ 	protected void drawGuiContainerBackgroundLayer(float var1) {
+-		int var2 = this.mc.renderEngine.getTexture("/gui/container.png");
++		int var2 = this.mc.renderEngine.getTexture("/gui/container/" + new Random().nextInt(3) + ".png");
+ 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 		this.mc.renderEngine.bindTexture(var2);
+ 		int var3 = (this.width - this.xSize) / 2;
+--- /dev/null
++++ net/minecraft/src/RenderGT.java
+@@ -1,0 +1,12 @@
++package net.minecraft.src;
++
++import org.lwjgl.opengl.GL11;
++
++public class RenderGT extends RenderLiving {
++	protected ModelGT modelBipedMain;
++
++	public RenderGT(ModelGT var1, float var2) {
++		super(var1, var2);
++		this.modelBipedMain = var1;
++	}
++}
+--- net/minecraft/src/SoundManager.java
++++ net/minecraft/src/SoundManager.java
+@@ -18,6 +18,10 @@
+ 	private static boolean loaded = false;
+ 	private Random rand = new Random();
+ 	private int ticksBeforeMusic = this.rand.nextInt(12000);
++	public float glitchIntensity = 1.0F;
++	private int glitchMusicTimer = 0;
++	private int glitchMusicDuration = 0;
++	private boolean glitchMusicActive = false;
+ 
+ 	public void loadSoundSettings(GameSettings var1) {
+ 		this.soundPoolStreaming.field_1657_b = false;
+@@ -85,13 +89,23 @@
+ 		this.soundPoolMusic.addSound(var1, var2);
+ 	}
+ 
+-	public void playRandomMusicIfReady() {
++	public void playRandomMusicIfReady(boolean glitch) {
+ 		if(loaded && this.options.musicVolume != 0.0F) {
++
++			if(sndSystem.playing("BgMusic") && glitch) {
++				float[] g = applyGlitch(1.0F, this.options.musicVolume);
++				sndSystem.setPitch("BgMusic", g[0]);
++				sndSystem.setVolume("BgMusic", g[1]);
++			}
++
++			if(!glitch && sndSystem.playing("BgMusic")) {
++				glitchMusicActive = false;
++				sndSystem.setPitch("BgMusic", 1.0F);
++				sndSystem.setVolume("BgMusic", this.options.musicVolume);
++			}
++
+ 			if(!sndSystem.playing("BgMusic") && !sndSystem.playing("streaming")) {
+-				if(this.ticksBeforeMusic > 0) {
+-					--this.ticksBeforeMusic;
+-					return;
+-				}
++				if(this.ticksBeforeMusic > 0) {--this.ticksBeforeMusic; return;}
+ 
+ 				SoundPoolEntry var1 = this.soundPoolMusic.getRandomSound();
+ 				if(var1 != null) {
+@@ -101,7 +115,6 @@
+ 					sndSystem.play("BgMusic");
+ 				}
+ 			}
+-
+ 		}
+ 	}
+ 
+@@ -150,47 +163,96 @@
+ 		}
+ 	}
+ 
+-	public void playSound(String var1, float var2, float var3, float var4, float var5, float var6) {
++	public void playSound(boolean glitch, String var1, float var2, float var3, float var4, float var5, float var6) {
+ 		if(loaded && this.options.soundVolume != 0.0F) {
+ 			SoundPoolEntry var7 = this.soundPoolSounds.getRandomSoundFromSoundPool(var1);
+ 			if(var7 != null && var5 > 0.0F) {
+ 				this.field_587_e = (this.field_587_e + 1) % 256;
+ 				String var8 = "sound_" + this.field_587_e;
+ 				float var9 = 16.0F;
+-				if(var5 > 1.0F) {
+-					var9 *= var5;
+-				}
+-
+-				sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
+-				sndSystem.setPitch(var8, var6);
+-				if(var5 > 1.0F) {
+-					var5 = 1.0F;
+-				}
+-
+-				sndSystem.setVolume(var8, var5 * this.options.soundVolume);
+-				sndSystem.play(var8);
++				if(var5 > 1.0F) var9 *= var5;
++
++				if(glitch) {
++					if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) return;
++
++					playGlitchStutter(var7, var5 > 1.0F ? 1.0F : var5, var6, true, var2, var3, var4, var9);
++				} else {
++					sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
++					sndSystem.setPitch(var8, var6);
++					if(var5 > 1.0F) var5 = 1.0F;
++					sndSystem.setVolume(var8, var5 * this.options.soundVolume);
++					sndSystem.play(var8);
++				}
+ 			}
+-
+ 		}
+ 	}
+ 
+-	public void playSoundFX(String var1, float var2, float var3) {
++	public void playSoundFX(boolean glitch, String var1, float var2, float var3) {
+ 		if(loaded && this.options.soundVolume != 0.0F) {
+ 			SoundPoolEntry var4 = this.soundPoolSounds.getRandomSoundFromSoundPool(var1);
+ 			if(var4 != null) {
+ 				this.field_587_e = (this.field_587_e + 1) % 256;
+ 				String var5 = "sound_" + this.field_587_e;
+-				sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
+-				if(var2 > 1.0F) {
+-					var2 = 1.0F;
+-				}
+-
++				if(var2 > 1.0F) var2 = 1.0F;
+ 				var2 *= 0.25F;
+-				sndSystem.setPitch(var5, var3);
+-				sndSystem.setVolume(var5, var2 * this.options.soundVolume);
+-				sndSystem.play(var5);
+-			}
+-
++
++				if(glitch) {
++					if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) return;
++
++					playGlitchStutter(var4, var2, var3, false, 0, 0, 0, 0);
++				} else {
++					sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
++					sndSystem.setPitch(var5, var3);
++					sndSystem.setVolume(var5, var2 * this.options.soundVolume);
++					sndSystem.play(var5);
++				}
++			}
++		}
++	}
++
++	private float[] applyGlitch(float pitch, float vol) {
++		float p = pitch;
++		float v = vol;
++
++		p += (this.rand.nextFloat() - 0.65F) * glitchIntensity * 1.5F;
++
++		if(this.rand.nextInt(5) == 0) {
++			p *= 0.3F + this.rand.nextFloat() * 0.4F;
++		}
++		if(this.rand.nextInt(12) == 0) {
++			p *= 2.5F + this.rand.nextFloat() * 1.5F;
++		}
++
++		if(this.rand.nextInt(4) == 0) {
++			v *= this.rand.nextFloat() * (1.0F - glitchIntensity);
++		}
++		if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) {
++			v = 0.0F;
++		}
++
++		if(p < 0.05F) p = 0.05F;
++
++		return new float[]{p, v};
++	}
++
++
++	private void playGlitchStutter(SoundPoolEntry entry, float vol, float pitch, boolean positional,
++								   float x, float y, float z, float var9) {
++		int count = this.rand.nextInt(3) + 2;
++		for(int i = 0; i < count; i++) {
++			this.field_587_e = (this.field_587_e + 1) % 256;
++			String id = "sound_" + this.field_587_e;
++
++			float[] g = applyGlitch(pitch, vol);
++
++			if(positional) {
++				sndSystem.newSource(vol > 1.0F, id, entry.soundUrl, entry.soundName, false, x, y, z, 2, var9);
++			} else {
++				sndSystem.newSource(false, id, entry.soundUrl, entry.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
++			}
++			sndSystem.setPitch(id, g[0]);
++			sndSystem.setVolume(id, g[1] * this.options.soundVolume);
++			sndSystem.play(id);
+ 		}
+ 	}
+ }
+--- net/minecraft/src/GuiFurnace.java
++++ net/minecraft/src/GuiFurnace.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import org.lwjgl.opengl.GL11;
++import java.util.Random;
+ 
+ public class GuiFurnace extends GuiContainer {
+ 	private TileEntityFurnace furnaceInventory;
+@@ -16,7 +17,7 @@
+ 	}
+ 
+ 	protected void drawGuiContainerBackgroundLayer(float var1) {
+-		int var2 = this.mc.renderEngine.getTexture("/gui/furnace.png");
++		int var2 = this.mc.renderEngine.getTexture("/gui/furnace/" + new Random().nextInt(3) + ".png");
+ 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 		this.mc.renderEngine.bindTexture(var2);
+ 		int var3 = (this.width - this.xSize) / 2;
+--- net/minecraft/src/GuiDispenser.java
++++ net/minecraft/src/GuiDispenser.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.src;
+ 
+ import org.lwjgl.opengl.GL11;
++import java.util.Random;
+ 
+ public class GuiDispenser extends GuiContainer {
+ 	public GuiDispenser(InventoryPlayer var1, TileEntityDispenser var2) {
+@@ -13,7 +14,7 @@
+ 	}
+ 
+ 	protected void drawGuiContainerBackgroundLayer(float var1) {
+-		int var2 = this.mc.renderEngine.getTexture("/gui/trap.png");
++		int var2 = this.mc.renderEngine.getTexture("/gui/trap/" + new Random().nextInt(3) + ".png");
+ 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 		this.mc.renderEngine.bindTexture(var2);
+ 		int var3 = (this.width - this.xSize) / 2;
+--- /dev/null
++++ net/minecraft/src/EntityBinaryGlitch.java
+@@ -1,0 +1,48 @@
++package net.minecraft.src;
++
++import net.minecraft.client.Minecraft;
++import java.util.Random;
++
++public class EntityBinaryGlitch extends EntityAnimalAttack {
++	public EntityBinaryGlitch(World var1) {
++		super(var1);
++		this.texture = "/mob/binaryglitch/0.png";
++		this.health = 100;
++		this.moveSpeed = 0.7F;
++		this.attackStrength = 10;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++		this.texture = "/mob/binaryglitch/" + new Random().nextInt(4) + ".png";
++		if(!this.worldObj.multiplayerWorld) {
++			EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
++			if(player != null) {
++				if(this.getDistanceToEntity(player) <= 5) {
++					this.setEntityDead();
++					int XX = new Random().nextInt(1000) - 500;
++					int ZZ = new Random().nextInt(1000) - 500;
++					this.worldObj.getChunkFromBlockCoords(XX >> 4, ZZ >> 4);
++					int YY = this.worldObj.findTopSolidBlock(XX, ZZ) + 2;
++					player.setPosition(XX, YY, ZZ);
++				}
++			}
++		}
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		return false;
++	}
++
++	protected String getLivingSound() {
++		return null;
++	}
++
++	protected String getHurtSound() {
++		return null;
++	}
++
++	protected String getDeathSound() {
++		return null;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/RealtimeGlitch.java
+@@ -1,0 +1,49 @@
++package net.minecraft.src;
++
++import javax.sound.sampled.*;
++
++public class RealtimeGlitch extends Thread {
++	private SourceDataLine line;
++	private volatile boolean running = true;
++
++	public void run() {
++		try {
++			AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
++			line = AudioSystem.getSourceDataLine(format);
++			line.open(format);
++			line.start();
++
++			byte[] buffer = new byte[1024];
++
++			while (running) {
++				generateGlitchNoise(buffer);
++				line.write(buffer, 0, buffer.length);
++			}
++
++			line.drain();
++			line.close();
++		} catch (Exception e) {
++			e.printStackTrace();
++		}
++	}
++
++	private static void generateGlitchNoise(byte[] buffer) {
++		float volume = 0.1f;
++
++		for (int i = 0; i < buffer.length; i += 2) {
++			short sample = (short)(Math.random() * Short.MAX_VALUE);
++
++			if (Math.random() < 0.3) {
++				sample = (short)(sample ^ (int)(Math.random() * 0xFFFF));
++			}
++
++			sample = (short)(sample * volume);
++
++			buffer[i] = (byte)(sample & 0xFF);
++			buffer[i + 1] = (byte)((sample >> 8) & 0xFF);
++		}
++	}
++	public void stopGlitch() {
++		running = false;
++	}
++}
+--- net/minecraft/src/ModelRenderer.java
++++ net/minecraft/src/ModelRenderer.java
+@@ -18,10 +18,21 @@
+ 	public boolean mirror = false;
+ 	public boolean showModel = true;
+ 	public boolean field_1402_i = false;
++	public float SX;
++	public float SY;
+ 
+ 	public ModelRenderer(int var1, int var2) {
+ 		this.textureOffsetX = var1;
+ 		this.textureOffsetY = var2;
++		this.SX = 64.0F;
++		this.SY = 32.0F;
++	}
++
++	public ModelRenderer(int var1, int var2, float XX, float YY) {
++		this.textureOffsetX = var1;
++		this.textureOffsetY = var2;
++		this.SX = XX;
++		this.SY = YY;
+ 	}
+ 
+ 	public void addBox(float var1, float var2, float var3, int var4, int var5, int var6) {
+@@ -62,12 +73,12 @@
+ 		this.corners[5] = var16;
+ 		this.corners[6] = var17;
+ 		this.corners[7] = var18;
+-		this.faces[0] = new TexturedQuad(new PositionTextureVertex[]{var16, var12, var13, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6 + var5);
+-		this.faces[1] = new TexturedQuad(new PositionTextureVertex[]{var20, var15, var18, var14}, this.textureOffsetX + 0, this.textureOffsetY + var6, this.textureOffsetX + var6, this.textureOffsetY + var6 + var5);
+-		this.faces[2] = new TexturedQuad(new PositionTextureVertex[]{var16, var15, var20, var12}, this.textureOffsetX + var6, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6);
+-		this.faces[3] = new TexturedQuad(new PositionTextureVertex[]{var13, var14, var18, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4 + var4, this.textureOffsetY + var6);
+-		this.faces[4] = new TexturedQuad(new PositionTextureVertex[]{var12, var20, var14, var13}, this.textureOffsetX + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6 + var5);
+-		this.faces[5] = new TexturedQuad(new PositionTextureVertex[]{var15, var16, var17, var18}, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6 + var4, this.textureOffsetY + var6 + var5);
++		this.faces[0] = new TexturedQuad(new PositionTextureVertex[]{var16, var12, var13, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6 + var5, this.SX, this.SY);
++		this.faces[1] = new TexturedQuad(new PositionTextureVertex[]{var20, var15, var18, var14}, this.textureOffsetX + 0, this.textureOffsetY + var6, this.textureOffsetX + var6, this.textureOffsetY + var6 + var5, this.SX, this.SY);
++		this.faces[2] = new TexturedQuad(new PositionTextureVertex[]{var16, var15, var20, var12}, this.textureOffsetX + var6, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.SX, this.SY);
++		this.faces[3] = new TexturedQuad(new PositionTextureVertex[]{var13, var14, var18, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4 + var4, this.textureOffsetY + var6, this.SX, this.SY);
++		this.faces[4] = new TexturedQuad(new PositionTextureVertex[]{var12, var20, var14, var13}, this.textureOffsetX + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6 + var5, this.SX, this.SY);
++		this.faces[5] = new TexturedQuad(new PositionTextureVertex[]{var15, var16, var17, var18}, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6 + var4, this.textureOffsetY + var6 + var5, this.SX, this.SY);
+ 		if(this.mirror) {
+ 			for(int var19 = 0; var19 < this.faces.length; ++var19) {
+ 				this.faces[var19].flipFace();
+--- net/minecraft/src/World.java
++++ net/minecraft/src/World.java
+@@ -54,6 +54,7 @@
+ 	private int soundCounter;
+ 	private List field_1012_M;
+ 	public boolean multiplayerWorld;
++	public WorldFragmentedEvents fragmentedEvents;
+ 
+ 	public WorldChunkManager getWorldChunkManager() {
+ 		return this.worldProvider.worldChunkMgr;
+@@ -98,6 +99,7 @@
+ 		this.chunkProvider = this.getChunkProvider();
+ 		this.calculateInitialSkylight();
+ 		this.func_27163_E();
++		this.fragmentedEvents = new WorldFragmentedEvents(this);
+ 	}
+ 
+ 	public World(World var1, WorldProvider var2) {
+@@ -140,6 +142,7 @@
+ 		this.chunkProvider = this.getChunkProvider();
+ 		this.calculateInitialSkylight();
+ 		this.func_27163_E();
++		this.fragmentedEvents = new WorldFragmentedEvents(this);
+ 	}
+ 
+ 	public World(ISaveHandler var1, String var2, long var3) {
+@@ -181,6 +184,7 @@
+ 		this.field_28108_z = new MapStorage(var1);
+ 		this.worldInfo = var1.loadWorldInfo();
+ 		this.isNewWorld = this.worldInfo == null;
++		this.fragmentedEvents = new WorldFragmentedEvents(this);
+ 		if(var5 != null) {
+ 			this.worldProvider = var5;
+ 		} else if(this.worldInfo != null && this.worldInfo.getDimension() == -1) {
+@@ -1737,6 +1741,7 @@
+ 	}
+ 
+ 	public void tick() {
++		this.fragmentedEvents.tickEvents();
+ 		this.updateWeather();
+ 		long var2;
+ 		if(this.isAllPlayersFullyAsleep()) {
+--- /dev/null
++++ net/minecraft/src/EntityAnimalAttack.java
+@@ -1,0 +1,37 @@
++package net.minecraft.src;
++
++public abstract class EntityAnimalAttack extends EntityAnimal {
++	protected int attackStrength = 2;
++
++	public EntityAnimalAttack(World var1) {
++		super(var1);
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 60.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		if(super.attackEntityFrom(var1, var2)) {
++			if(this.riddenByEntity != var1 && this.ridingEntity != var1) {
++				if(var1 != this) {
++					this.playerToAttack = var1;
++				}
++
++				return true;
++			} else {
++				return true;
++			}
++		} else {
++			return false;
++		}
++	}
++
++	protected void attackEntity(Entity var1, float var2) {
++		if(this.attackTime <= 0 && var2 < 2.0F && var1.boundingBox.maxY > this.boundingBox.minY && var1.boundingBox.minY < this.boundingBox.maxY) {
++			this.attackTime = 20;
++			var1.attackEntityFrom(this, this.attackStrength);
++		}
++	}
++}
 --- /dev/null
 +++ net/minecraft/src/EntityNull.java
 @@ -1,0 +1,57 @@
@@ -352,29 +2436,6 @@
 +		return null;
 +	}
 +}
---- net/minecraft/src/GuiSlotStats.java
-+++ net/minecraft/src/GuiSlotStats.java
-@@ -3,6 +3,7 @@
- import java.util.Collections;
- import java.util.Comparator;
- import java.util.List;
-+import java.util.Random;
- import org.lwjgl.input.Mouse;
- 
- abstract class GuiSlotStats extends GuiSlot {
-@@ -87,7 +88,11 @@
- 
- 		if(this.field_27268_b >= 0) {
- 			this.func_27266_c(this.field_27268_b);
--			GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-+			if(new Random().nextInt(6) == 0) {
-+				GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX(true, "random.click", 1.0F, 1.0F);
-+			} else {
-+				GuiStats.func_27149_g(this.field_27269_g).sndManager.playSoundFX(false, "random.click", 1.0F, 1.0F);
-+			}
- 		}
- 
- 	}
 --- /dev/null
 +++ net/minecraft/src/WavPlaySound.java
 @@ -1,0 +1,37 @@
@@ -426,38 +2487,6 @@
  	protected Entity playerToAttack;
  	protected boolean hasAttacked = false;
  
---- net/minecraft/src/BlockFlower.java
-+++ net/minecraft/src/BlockFlower.java
-@@ -21,11 +21,11 @@
- 
- 	public void onNeighborBlockChange(World var1, int var2, int var3, int var4, int var5) {
- 		super.onNeighborBlockChange(var1, var2, var3, var4, var5);
--		this.func_268_h(var1, var2, var3, var4);
-+		//this.func_268_h(var1, var2, var3, var4);
- 	}
- 
- 	public void updateTick(World var1, int var2, int var3, int var4, Random var5) {
--		this.func_268_h(var1, var2, var3, var4);
-+		//this.func_268_h(var1, var2, var3, var4);
- 	}
- 
- 	protected final void func_268_h(World var1, int var2, int var3, int var4) {
-@@ -36,10 +36,11 @@
- 
- 	}
- 
--	public boolean canBlockStay(World var1, int var2, int var3, int var4) {
--		return (var1.getFullBlockLightValue(var2, var3, var4) >= 8 || var1.canBlockSeeTheSky(var2, var3, var4)) && this.canThisPlantGrowOnThisBlockID(var1.getBlockId(var2, var3 - 1, var4));
--	}
--
-+	/**
-+	 * public boolean canBlockStay(World var1, int var2, int var3, int var4) {
-+	 * return (var1.getFullBlockLightValue(var2, var3, var4) >= 8 || var1.canBlockSeeTheSky(var2, var3, var4)) && this.canThisPlantGrowOnThisBlockID(var1.getBlockId(var2, var3 - 1, var4));
-+	 * }
-+	 */
- 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World var1, int var2, int var3, int var4) {
- 		return null;
- 	}
 --- net/minecraft/src/GuiIngame.java
 +++ net/minecraft/src/GuiIngame.java
 @@ -5,6 +5,7 @@
@@ -732,20 +2761,6 @@
 +	}
 +}
 --- /dev/null
-+++ net/minecraft/src/BiomeGenGlitch.java
-@@ -1,0 +1,11 @@
-+package net.minecraft.src;
-+
-+public class BiomeGenGlitch extends BiomeGenBase {
-+	public BiomeGenGlitch() {
-+		super();
-+		this.biomeName = "RnJhZ21lbnRlZA==";
-+		this.spawnableCreatureList.clear();
-+		this.topBlock = (byte)Block.grass.blockID;
-+		this.fillerBlock = (byte)Block.dirt.blockID;
-+	}
-+}
---- /dev/null
 +++ net/minecraft/src/RenderNoFlagAndBugMob.java
 @@ -1,0 +1,12 @@
 +package net.minecraft.src;
@@ -756,21 +2771,6 @@
 +	protected ModelNoFlag modelBipedMain;
 +
 +	public RenderNoFlagAndBugMob(ModelNoFlag var1, float var2) {
-+		super(var1, var2);
-+		this.modelBipedMain = var1;
-+	}
-+}
---- /dev/null
-+++ net/minecraft/src/RenderLengthFlag.java
-@@ -1,0 +1,12 @@
-+package net.minecraft.src;
-+
-+import org.lwjgl.opengl.GL11;
-+
-+public class RenderLengthFlag extends RenderLiving {
-+	protected ModelLengthFlag modelBipedMain;
-+
-+	public RenderLengthFlag(ModelLengthFlag var1, float var2) {
 +		super(var1, var2);
 +		this.modelBipedMain = var1;
 +	}
@@ -831,71 +2831,6 @@
 +		super.updateTick(var1, var2, var3, var4, var5);
 +	}
 +}
---- net/minecraft/src/ChunkProviderGenerate.java
-+++ net/minecraft/src/ChunkProviderGenerate.java
-@@ -113,9 +113,22 @@
- 	public void replaceBlocksForBiome(int var1, int var2, byte[] var3, BiomeGenBase[] var4) {
- 		byte var5 = 64;
- 		double var6 = 1.0D / 32.0D;
--		this.sandNoise = this.field_909_n.generateNoiseOctaves(this.sandNoise, (double)(var1 * 16), (double)(var2 * 16), 0.0D, 16, 16, 1, var6, var6, 1.0D);
--		this.gravelNoise = this.field_909_n.generateNoiseOctaves(this.gravelNoise, (double)(var1 * 16), 109.0134D, (double)(var2 * 16), 16, 1, 16, var6, 1.0D, var6);
--		this.stoneNoise = this.field_908_o.generateNoiseOctaves(this.stoneNoise, (double)(var1 * 16), (double)(var2 * 16), 0.0D, 16, 16, 1, var6 * 2.0D, var6 * 2.0D, var6 * 2.0D);
-+		double offsetX = 0;
-+		double offsetY = 0;
-+		double offsetZ = 0;
-+		for(int var8 = 0; var8 < 16; ++var8) {
-+			for(int var9 = 0; var9 < 16; ++var9) {
-+				BiomeGenBase var10 = var4[var8 + var9 * 16];
-+				if(var10 == BiomeGenBase.glitch) {
-+					offsetX = (rand.nextDouble() - 2.0);
-+					offsetY = (rand.nextDouble() - 2.0);
-+					offsetZ = (rand.nextDouble() - 2.0);
-+				}
-+			}
-+		}
-+		this.sandNoise = this.field_909_n.generateNoiseOctaves(this.sandNoise, (double)(var1 * 16) + offsetX, (double)(var2 * 16) + offsetY, 0.0D + offsetZ, 16, 16, 1, var6, var6, 1.0D);
-+		this.gravelNoise = this.field_909_n.generateNoiseOctaves(this.gravelNoise, (double)(var1 * 16) + offsetX, 109.0134D + offsetY, (double)(var2 * 16) + offsetZ, 16, 1, 16, var6, 1.0D, var6);
-+		this.stoneNoise = this.field_908_o.generateNoiseOctaves(this.stoneNoise, (double)(var1 * 16) + offsetX, (double)(var2 * 16) + offsetY, 0.0D + offsetZ, 16, 16, 1, var6 * 2.0D, var6 * 2.0D, var6 * 2.0D);
- 
- 		for(int var8 = 0; var8 < 16; ++var8) {
- 			for(int var9 = 0; var9 < 16; ++var9) {
-@@ -126,6 +139,14 @@
- 				int var14 = -1;
- 				byte var15 = var10.topBlock;
- 				byte var16 = var10.fillerBlock;
-+				if(var10 == BiomeGenBase.glitch) {
-+					if(new Random().nextInt(6) == 0) {
-+						var15 = (byte)Block.glitch.blockID;
-+					}
-+					if(new Random().nextInt(6) == 0) {
-+						var16 = (byte)Block.glitch.blockID;
-+					}
-+				}
- 
- 				for(int var17 = 127; var17 >= 0; --var17) {
- 					int var18 = (var9 * 16 + var8) * 128 + var17;
-@@ -468,6 +489,10 @@
- 			var27 = 3;
- 		}
- 
-+		if(var6 == BiomeGenBase.glitch) {
-+			var27 = 3;
-+		}
-+
- 		int var19;
- 		int var25;
- 		for(var16 = 0; var16 < var27; ++var16) {
-@@ -495,6 +520,10 @@
- 		}
- 
- 		if(var6 == BiomeGenBase.plains) {
-+			var28 = 10;
-+		}
-+
-+		if(var6 == BiomeGenBase.glitch) {
- 			var28 = 10;
- 		}
- 
 --- net/minecraft/src/ChunkProviderSky.java
 +++ net/minecraft/src/ChunkProviderSky.java
 @@ -113,6 +113,14 @@
@@ -932,25 +2867,6 @@
  			var14 -= 20;
  		}
  
---- net/minecraft/src/EntityList.java
-+++ net/minecraft/src/EntityList.java
-@@ -104,5 +104,16 @@
- 		addMapping(EntityFallingSand.class, "FallingSand", 21);
- 		addMapping(EntityMinecart.class, "Minecart", 40);
- 		addMapping(EntityBoat.class, "Boat", 41);
-+
-+		addMapping(EntityNoFlag.class, "NoFlag", 96);
-+		addMapping(EntityNull.class, "Null", 97);
-+		addMapping(Entity____.class, "____", 98);
-+		addMapping(EntityBugmob.class, "BugMob", 99);
-+		addMapping(EntityGlitchThing.class, "GlitchThing", 100);
-+		addMapping(EntityDeleting.class, "BugMob", 101);
-+		addMapping(EntityPublicGlitch.class, "PublicGlitch", 102);
-+		addMapping(EntityBinaryGlitch.class, "BinaryGlitch", 103);
-+		addMapping(EntityFragmented64.class, "F64", 104);
-+		addMapping(EntityLengthFlag.class, "LF", 105);
- 	}
- }
 --- net/minecraft/src/PanelCrashReport.java
 +++ net/minecraft/src/PanelCrashReport.java
 @@ -25,7 +25,7 @@
@@ -962,154 +2878,6 @@
  			var5 = var5 + "OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + "\n";
  			var5 = var5 + "Java: " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + "\n";
  			var5 = var5 + "VM: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor") + "\n";
---- /dev/null
-+++ net/minecraft/src/TessellatorAfterimage.java
-@@ -1,0 +1,145 @@
-+package net.minecraft.src;
-+
-+import org.lwjgl.opengl.GL11;
-+import java.util.ArrayList;
-+import java.util.List;
-+
-+public class TessellatorAfterimage {
-+	private List<VertexData> previousVertices = new ArrayList<>();
-+	private static final long AFTERIMAGE_DURATION = 500; // ミリ秒
-+	private static final float AFTERIMAGE_ALPHA = 0.3f; // 透明度
-+
-+	public void addVertexWithAfterimage(double x, double y, double z, double u, double v) {
-+		Tessellator.instance.addVertexWithUV(x, y, z, u, v);
-+
-+		previousVertices.add(new VertexData(x, y, z, u, v, true, System.currentTimeMillis()));
-+
-+		cleanOldVertices();
-+	}
-+
-+	public void addVertexWithAfterimage(double x, double y, double z) {
-+		Tessellator.instance.addVertex(x, y, z);
-+
-+		previousVertices.add(new VertexData(x, y, z, 0, 0, false, System.currentTimeMillis()));
-+
-+		cleanOldVertices();
-+	}
-+
-+	public void setColorAndAddVertex(int r, int g, int b, int a, double x, double y, double z) {
-+		Tessellator t = Tessellator.instance;
-+		t.setColorRGBA(r, g, b, a);
-+		t.addVertex(x, y, z);
-+
-+		VertexData data = new VertexData(x, y, z, 0, 0, false, System.currentTimeMillis());
-+		data.r = r;
-+		data.g = g;
-+		data.b = b;
-+		data.a = a;
-+		data.hasColor = true;
-+		previousVertices.add(data);
-+
-+		cleanOldVertices();
-+	}
-+
-+	private void cleanOldVertices() {
-+		long currentTime = System.currentTimeMillis();
-+		previousVertices.removeIf(v -> currentTime - v.timestamp > AFTERIMAGE_DURATION);
-+	}
-+
-+	public void renderAfterimages() {
-+		if (previousVertices.isEmpty()) return;
-+
-+		GL11.glEnable(GL11.GL_BLEND);
-+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-+
-+		long currentTime = System.currentTimeMillis();
-+
-+		Tessellator t = Tessellator.instance;
-+
-+		boolean hasUVVertices = false;
-+		for (VertexData v : previousVertices) {
-+			if (v.hasUV) {
-+				hasUVVertices = true;
-+				break;
-+			}
-+		}
-+
-+		if (hasUVVertices) {
-+			t.startDrawingQuads();
-+			for (VertexData v : previousVertices) {
-+				if (!v.hasUV) continue;
-+
-+				long age = currentTime - v.timestamp;
-+				float alpha = 1.0f - (age / (float)AFTERIMAGE_DURATION);
-+
-+				if (v.hasColor) {
-+					t.setColorRGBA(v.r, v.g, v.b, (int)(v.a * alpha * AFTERIMAGE_ALPHA));
-+				} else {
-+					t.setColorRGBA_F(1.0f, 1.0f, 1.0f, alpha * AFTERIMAGE_ALPHA);
-+				}
-+
-+				t.addVertexWithUV(v.x, v.y, v.z, v.u, v.v);
-+			}
-+			t.draw();
-+		}
-+
-+		boolean hasSimpleVertices = false;
-+		for (VertexData v : previousVertices) {
-+			if (!v.hasUV) {
-+				hasSimpleVertices = true;
-+				break;
-+			}
-+		}
-+
-+		if (hasSimpleVertices) {
-+			t.startDrawing(GL11.GL_LINES);
-+			for (VertexData v : previousVertices) {
-+				if (v.hasUV) continue;
-+
-+				long age = currentTime - v.timestamp;
-+				float alpha = 1.0f - (age / (float)AFTERIMAGE_DURATION);
-+
-+				if (v.hasColor) {
-+					t.setColorRGBA(v.r, v.g, v.b, (int)(v.a * alpha * AFTERIMAGE_ALPHA));
-+				} else {
-+					t.setColorRGBA_F(1.0f, 1.0f, 1.0f, alpha * AFTERIMAGE_ALPHA);
-+				}
-+
-+				t.addVertex(v.x, v.y, v.z);
-+			}
-+			t.draw();
-+		}
-+
-+		GL11.glDisable(GL11.GL_BLEND);
-+	}
-+
-+	public void clear() {
-+		previousVertices.clear();
-+	}
-+
-+	public void setDuration(long durationMs) {
-+	}
-+}
-+
-+class VertexData {
-+	double x, y, z, u, v;
-+	int r, g, b, a;
-+	long timestamp;
-+	boolean hasUV;
-+	boolean hasColor;
-+
-+	public VertexData(double x, double y, double z, double u, double v, boolean hasUV, long timestamp) {
-+		this.x = x;
-+		this.y = y;
-+		this.z = z;
-+		this.u = u;
-+		this.v = v;
-+		this.hasUV = hasUV;
-+		this.timestamp = timestamp;
-+		this.hasColor = false;
-+		this.r = 255;
-+		this.g = 255;
-+		this.b = 255;
-+		this.a = 255;
-+	}
-+}
 --- /dev/null
 +++ net/minecraft/src/EntityNoFlag.java
 @@ -1,0 +1,40 @@
@@ -1154,150 +2922,6 @@
 +	}
 +}
 --- /dev/null
-+++ net/minecraft/src/EntityAnimalAttackLong.java
-@@ -1,0 +1,110 @@
-+package net.minecraft.src;
-+
-+public abstract class EntityAnimalAttackLong extends EntityAnimalAttack {
-+	public EntityAnimalAttackLong(World var1) {
-+		super(var1);
-+	}
-+
-+	protected void updatePlayerActionState() {
-+		this.hasAttacked = this.isMovementCeased();
-+		float var1 = 48.0F;
-+		if(this.playerToAttack == null) {
-+			this.playerToAttack = this.findPlayerToAttack();
-+			if(this.playerToAttack != null) {
-+				this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
-+			}
-+		} else if(!this.playerToAttack.isEntityAlive()) {
-+			this.playerToAttack = null;
-+		} else {
-+			float var2 = this.playerToAttack.getDistanceToEntity(this);
-+			if(this.canEntityBeSeen(this.playerToAttack)) {
-+				this.attackEntity(this.playerToAttack, var2);
-+			} else {
-+				this.attackBlockedEntity(this.playerToAttack, var2);
-+			}
-+		}
-+
-+		if(this.hasAttacked || this.playerToAttack == null || this.pathToEntity != null && this.rand.nextInt(20) != 0) {
-+			if(!this.hasAttacked && (this.pathToEntity == null && this.rand.nextInt(80) == 0 || this.rand.nextInt(80) == 0)) {
-+				this.func_31026_E();
-+			}
-+		} else {
-+			this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
-+		}
-+
-+		int var21 = MathHelper.floor_double(this.boundingBox.minY + 0.5D);
-+		boolean var3 = this.isInWater();
-+		boolean var4 = this.handleLavaMovement();
-+		this.rotationPitch = 0.0F;
-+		if(this.pathToEntity != null && this.rand.nextInt(100) != 0) {
-+			Vec3D var5 = this.pathToEntity.getPosition(this);
-+			double var6 = (double)(this.width * 2.0F);
-+
-+			while(var5 != null && var5.squareDistanceTo(this.posX, var5.yCoord, this.posZ) < var6 * var6) {
-+				this.pathToEntity.incrementPathIndex();
-+				if(this.pathToEntity.isFinished()) {
-+					var5 = null;
-+					this.pathToEntity = null;
-+				} else {
-+					var5 = this.pathToEntity.getPosition(this);
-+				}
-+			}
-+
-+			this.isJumping = false;
-+			if(var5 != null) {
-+				double var8 = var5.xCoord - this.posX;
-+				double var10 = var5.zCoord - this.posZ;
-+				double var12 = var5.yCoord - (double)var21;
-+				float var14 = (float)(Math.atan2(var10, var8) * 180.0D / (double)((float)Math.PI)) - 90.0F;
-+				float var15 = var14 - this.rotationYaw;
-+
-+				for(this.moveForward = this.moveSpeed; var15 < -180.0F; var15 += 360.0F) {
-+				}
-+
-+				while(var15 >= 180.0F) {
-+					var15 -= 360.0F;
-+				}
-+
-+				if(var15 > 30.0F) {
-+					var15 = 30.0F;
-+				}
-+
-+				if(var15 < -30.0F) {
-+					var15 = -30.0F;
-+				}
-+
-+				this.rotationYaw += var15;
-+				if(this.hasAttacked && this.playerToAttack != null) {
-+					double var16 = this.playerToAttack.posX - this.posX;
-+					double var18 = this.playerToAttack.posZ - this.posZ;
-+					float var20 = this.rotationYaw;
-+					this.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / (double)((float)Math.PI)) - 90.0F;
-+					var15 = (var20 - this.rotationYaw + 90.0F) * (float)Math.PI / 180.0F;
-+					this.moveStrafing = -MathHelper.sin(var15) * this.moveForward * 1.0F;
-+					this.moveForward = MathHelper.cos(var15) * this.moveForward * 1.0F;
-+				}
-+
-+				if(var12 > 0.0D) {
-+					this.isJumping = true;
-+				}
-+			}
-+
-+			if(this.playerToAttack != null) {
-+				this.faceEntity(this.playerToAttack, 30.0F, 30.0F);
-+			}
-+
-+			if(this.isCollidedHorizontally && !this.hasPath()) {
-+				this.isJumping = true;
-+			}
-+
-+			if(this.rand.nextFloat() < 0.8F && (var3 || var4)) {
-+				this.isJumping = true;
-+			}
-+
-+		} else {
-+			super.updatePlayerActionState();
-+			this.pathToEntity = null;
-+		}
-+	}
-+
-+}
---- net/minecraft/src/PlayerControllerSP.java
-+++ net/minecraft/src/PlayerControllerSP.java
-@@ -1,6 +1,7 @@
- package net.minecraft.src;
- 
- import net.minecraft.client.Minecraft;
-+import java.util.Random;
- 
- public class PlayerControllerSP extends PlayerController {
- 	private int field_1074_c = -1;
-@@ -71,7 +72,11 @@
- 				Block var6 = Block.blocksList[var5];
- 				this.curBlockDamage += var6.blockStrength(this.mc.thePlayer);
- 				if(this.field_1069_h % 4.0F == 0.0F && var6 != null) {
--					this.mc.sndManager.playSound(var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
-+					if(new Random().nextInt(6) == 0) {
-+						this.mc.sndManager.playSound(true, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
-+					} else {
-+						this.mc.sndManager.playSound(false, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
-+					}
- 				}
- 
- 				++this.field_1069_h;
-@@ -116,6 +121,6 @@
- 
- 	public void updateController() {
- 		this.prevBlockDamage = this.curBlockDamage;
--		this.mc.sndManager.playRandomMusicIfReady();
-+		this.mc.sndManager.playRandomMusicIfReady(true);
- 	}
- }
---- /dev/null
 +++ net/minecraft/src/EntityLengthFlag.java
 @@ -1,0 +1,37 @@
 +package net.minecraft.src;
@@ -1319,144 +2943,6 @@
 +		}
 +		this.worldObj.getChunkFromBlockCoords((int)this.posX >> 4, (int)this.posZ >> 4);
 +		this.posY = this.worldObj.findTopSolidBlock((int)this.posX, (int)this.posZ);
-+	}
-+
-+	public boolean attackEntityFrom(Entity var1, int var2) {
-+		return false;
-+	}
-+
-+	protected String getLivingSound() {
-+		return null;
-+	}
-+
-+	protected String getHurtSound() {
-+		return null;
-+	}
-+
-+	protected String getDeathSound() {
-+		return null;
-+	}
-+}
---- /dev/null
-+++ net/minecraft/src/EntityGlitchThing.java
-@@ -1,0 +1,33 @@
-+package net.minecraft.src;
-+
-+import java.util.Random;
-+
-+public class EntityGlitchThing extends EntityAnimalAttack {
-+	public EntityGlitchThing(World var1) {
-+		super(var1);
-+		this.texture = "/mob/GlitchThing.png";
-+		this.health = 30;
-+		this.moveSpeed = 0.7F;
-+		this.attackStrength = 4;
-+	}
-+
-+	public void onLivingUpdate() {
-+		super.onLivingUpdate();
-+	}
-+
-+	protected int getDropItemId() {
-+		return Block.Null.blockID;
-+	}
-+
-+	protected String getLivingSound() {
-+		return null;
-+	}
-+
-+	protected String getHurtSound() {
-+		return null;
-+	}
-+
-+	protected String getDeathSound() {
-+		return null;
-+	}
-+}
---- net/minecraft/src/GuiButton.java
-+++ net/minecraft/src/GuiButton.java
-@@ -2,6 +2,7 @@
- 
- import net.minecraft.client.Minecraft;
- import org.lwjgl.opengl.GL11;
-+import java.util.Random;
- 
- public class GuiButton extends Gui {
- 	protected int width;
-@@ -12,6 +13,9 @@
- 	public int id;
- 	public boolean enabled;
- 	public boolean enabled2;
-+	public boolean x;
-+	public boolean y;
-+	public boolean b = false;
- 
- 	public GuiButton(int var1, int var2, int var3, String var4) {
- 		this(var1, var2, var3, 200, 20, var4);
-@@ -43,13 +47,18 @@
- 
- 	public void drawButton(Minecraft var1, int var2, int var3) {
- 		if(this.enabled2) {
-+			if(!this.b) {
-+				this.x = new Random().nextBoolean();
-+				this.y = !this.x;
-+				this.b = true;
-+			}
- 			FontRenderer var4 = var1.fontRenderer;
--			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var1.renderEngine.getTexture("/gui/gui.png"));
-+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var1.renderEngine.getTexture("/gui/gui/" + new Random().nextInt(3) + ".png"));
- 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
- 			boolean var5 = var2 >= this.xPosition && var3 >= this.yPosition && var2 < this.xPosition + this.width && var3 < this.yPosition + this.height;
- 			int var6 = this.getHoverState(var5);
--			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + var6 * 20, this.width / 2, this.height);
--			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + var6 * 20, this.width / 2, this.height);
-+			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + var6 * 20, this.width / 2, this.height, x, y, x, y, x, y, true);
-+			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + var6 * 20, this.width / 2, this.height, x, y, x, y, x, y, true);
- 			this.mouseDragged(var1, var2, var3);
- 			if(!this.enabled) {
- 				this.drawCenteredString(var4, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, -6250336);
---- /dev/null
-+++ net/minecraft/src/EntityDeleting.java
-@@ -1,0 +1,57 @@
-+package net.minecraft.src;
-+
-+import net.minecraft.client.Minecraft;
-+import java.util.Random;
-+
-+public class EntityDeleting extends EntityAnimalAttack {
-+	public EntityDeleting(World var1) {
-+		super(var1);
-+		this.texture = "/mob/deleting.png";
-+		this.health = 100;
-+		this.moveSpeed = 0.7F;
-+		this.attackStrength = 1;
-+	}
-+
-+	public void onLivingUpdate() {
-+		super.onLivingUpdate();
-+		if(!this.worldObj.multiplayerWorld) {
-+			EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
-+			if(player != null) {
-+				if(this.getDistanceToEntity(player) <= 15) {
-+					this.setEntityDead();
-+					if(new Random().nextInt(26) == 0) {
-+						for(int i = -16; i < 16; i++) {
-+							for(int j = 0; j < 128; j++) {
-+								for(int k = -16; k < 16; k++) {
-+									int XX = (int)this.posX + i;
-+									int ZZ = (int)this.posZ + k;
-+									int Blockid = this.worldObj.getBlockId(XX, j, ZZ);
-+									if(Blockid != Block.bedrock.blockID) {
-+										this.worldObj.setBlockWithNotify(XX, j, ZZ, 0);
-+									}
-+								}
-+							}
-+						}
-+						Minecraft.theMinecraft.tickEvents.timerS[2] = true;
-+					}
-+				}
-+			}
-+		}
 +	}
 +
 +	public boolean attackEntityFrom(Entity var1, int var2) {
@@ -1694,64 +3180,6 @@
  	public void onInventoryChanged() {
  		this.inventoryChanged = true;
  	}
---- net/minecraft/src/EntityPlayerSP.java
-+++ net/minecraft/src/EntityPlayerSP.java
-@@ -1,6 +1,7 @@
- package net.minecraft.src;
- 
- import net.minecraft.client.Minecraft;
-+import java.util.Random;
- 
- public class EntityPlayerSP extends EntityPlayer {
- 	public MovementInput movementInput;
-@@ -32,6 +33,20 @@
- 	}
- 
- 	public void onLivingUpdate() {
-+		if(this.worldObj.fragmentedEvents.timerS[0]) {
-+			this.motionX = 0.20F;
-+		}
-+		if(this.worldObj.fragmentedEvents.timerS[1]) {
-+			ItemStack[] inv = this.inventory.mainInventory;
-+
-+			for(int i = 0; i < inv.length; i++) {
-+				int j = this.worldObj.rand.nextInt(inv.length);
-+
-+				ItemStack temp = inv[i];
-+				inv[i] = inv[j];
-+				inv[j] = temp;
-+			}
-+		}
- 		if(!this.mc.statFileWriter.hasAchievementUnlocked(AchievementList.openInventory)) {
- 			this.mc.guiAchievement.queueAchievementInformation(AchievementList.openInventory);
- 		}
-@@ -47,7 +62,11 @@
- 			}
- 
- 			if(this.timeInPortal == 0.0F) {
--				this.mc.sndManager.playSoundFX("portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
-+				if(new Random().nextInt(6) == 0) {
-+					this.mc.sndManager.playSoundFX(true, "portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
-+				} else {
-+					this.mc.sndManager.playSoundFX(false, "portal.trigger", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
-+				}
- 			}
- 
- 			this.timeInPortal += 0.0125F;
-@@ -55,7 +74,12 @@
- 				this.timeInPortal = 1.0F;
- 				if(!this.worldObj.multiplayerWorld) {
- 					this.timeUntilPortal = 10;
--					this.mc.sndManager.playSoundFX("portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
-+
-+					if(new Random().nextInt(6) == 0) {
-+						this.mc.sndManager.playSoundFX(true, "portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
-+					} else {
-+						this.mc.sndManager.playSoundFX(false, "portal.travel", 1.0F, this.rand.nextFloat() * 0.4F + 0.8F);
-+					}
- 					this.mc.usePortal();
- 				}
- 			}
 --- /dev/null
 +++ net/minecraft/src/Packet80Event.java
 @@ -1,0 +1,32 @@
@@ -1787,17 +3215,6 @@
 +		return this.event;
 +	}
 +}
---- net/minecraft/src/GuiAchievement.java
-+++ net/minecraft/src/GuiAchievement.java
-@@ -62,7 +62,7 @@
- 			GL11.glDepthMask(false);
- 			RenderHelper.disableStandardItemLighting();
- 			this.updateAchievementWindowScale();
--			String var1 = "Minecraft Beta 1.7.3   Unlicensed Copy :(";
-+			String var1 = "Minecraft Fragmented   Unlicensed Copy :(";
- 			String var2 = "(Or logged in from another location)";
- 			String var3 = "Purchase at minecraft.net";
- 			this.theGame.fontRenderer.drawStringWithShadow(var1, 2, 2, 16777215);
 --- net/minecraft/src/EntityPlayer.java
 +++ net/minecraft/src/EntityPlayer.java
 @@ -1,7 +1,10 @@
@@ -1819,7 +3236,7 @@
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -374,6 +378,62 @@
+@@ -374,6 +378,60 @@
  
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
@@ -1842,17 +3259,15 @@
 +						}
 +					}).start();
 +					if(new Random().nextInt(12) == 0) {
-+						new Thread(()->WavPlaySound.playsound("/sounds/GT.wav")).start();
 +						try {
++							new Thread(()->WavPlaySound.playsound("/sounds/GTX.wav")).start();
++							Thread.sleep(5000);
++							new Thread(()->WavPlaySound.playsound("/sounds/GT.wav")).start();
 +							Thread.sleep(500);
-+						} catch (InterruptedException e) {
-+							throw new RuntimeException(e);
-+						}
-+						SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
-+						try {
++							SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
 +							Thread.sleep(8000);
-+						} catch (InterruptedException e) {
-+							throw new RuntimeException(e);
++						} catch (InterruptedException exception) {
++							throw new RuntimeException(exception);
 +						}
 +						throw new RuntimeException("Thing");
 +					}
@@ -2226,42 +3641,6 @@
  		addIdClassMapping(100, true, false, Packet100OpenWindow.class);
  		addIdClassMapping(101, true, true, Packet101CloseWindow.class);
  		addIdClassMapping(102, false, true, Packet102WindowClick.class);
---- net/minecraft/src/GuiTextField.java
-+++ net/minecraft/src/GuiTextField.java
-@@ -1,5 +1,7 @@
- package net.minecraft.src;
- 
-+import java.util.Random;
-+
- public class GuiTextField extends Gui {
- 	private final FontRenderer fontRenderer;
- 	private final int xPos;
-@@ -12,6 +14,9 @@
- 	public boolean isFocused = false;
- 	public boolean isEnabled = true;
- 	private GuiScreen parentGuiScreen;
-+	public boolean t = false;
-+	public boolean x = false;
-+	public boolean y = false;
- 
- 	public GuiTextField(GuiScreen var1, FontRenderer var2, int var3, int var4, int var5, int var6, String var7) {
- 		this.parentGuiScreen = var1;
-@@ -82,8 +87,13 @@
- 	}
- 
- 	public void drawTextBox() {
--		this.drawRect(this.xPos - 1, this.yPos - 1, this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336);
--		this.drawRect(this.xPos, this.yPos, this.xPos + this.width, this.yPos + this.height, -16777216);
-+		if(!this.t) {
-+			this.x = new Random().nextBoolean();
-+			this.y = !this.x;
-+			this.t = true;
-+		}
-+		this.drawRect(this.xPos - 1, this.yPos - 1, this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336, x, y, x, y, true);
-+		this.drawRect(this.xPos, this.yPos, this.xPos + this.width, this.yPos + this.height, -16777216, x, y, x, y, true);
- 		if(this.isEnabled) {
- 			boolean var1 = this.isFocused && this.cursorCounter / 6 % 2 == 0;
- 			this.drawString(this.fontRenderer, this.text + (var1 ? "_" : ""), this.xPos + 4, this.yPos + (this.height - 8) / 2, 14737632);
 --- net/minecraft/src/RenderGlobal.java
 +++ net/minecraft/src/RenderGlobal.java
 @@ -1268,7 +1268,11 @@
@@ -2290,62 +3669,6 @@
  			}
  
  			this.mc.effectRenderer.addBlockDestroyEffects(var3, var4, var5, var6 & 255, var6 >> 8 & 255);
---- net/minecraft/src/WorldInfo.java
-+++ net/minecraft/src/WorldInfo.java
-@@ -18,6 +18,7 @@
- 	private int rainTime;
- 	private boolean thundering;
- 	private int thunderTime;
-+	private long SWT;
- 
- 	public WorldInfo(NBTTagCompound var1) {
- 		this.randomSeed = var1.getLong("RandomSeed");
-@@ -25,6 +26,7 @@
- 		this.spawnY = var1.getInteger("SpawnY");
- 		this.spawnZ = var1.getInteger("SpawnZ");
- 		this.worldTime = var1.getLong("Time");
-+		this.SWT = var1.getLong("SWT");
- 		this.lastTimePlayed = var1.getLong("LastPlayed");
- 		this.sizeOnDisk = var1.getLong("SizeOnDisk");
- 		this.levelName = var1.getString("LevelName");
-@@ -51,6 +53,7 @@
- 		this.spawnY = var1.spawnY;
- 		this.spawnZ = var1.spawnZ;
- 		this.worldTime = var1.worldTime;
-+		this.SWT = var1.SWT;
- 		this.lastTimePlayed = var1.lastTimePlayed;
- 		this.sizeOnDisk = var1.sizeOnDisk;
- 		this.playerTag = var1.playerTag;
-@@ -92,6 +95,7 @@
- 		var1.setInteger("SpawnY", this.spawnY);
- 		var1.setInteger("SpawnZ", this.spawnZ);
- 		var1.setLong("Time", this.worldTime);
-+		var1.setLong("SWT", this.SWT);
- 		var1.setLong("SizeOnDisk", this.sizeOnDisk);
- 		var1.setLong("LastPlayed", System.currentTimeMillis());
- 		var1.setString("LevelName", this.levelName);
-@@ -126,6 +130,10 @@
- 		return this.worldTime;
- 	}
- 
-+	public long getSWT() {
-+		return this.SWT;
-+	}
-+
- 	public long getSizeOnDisk() {
- 		return this.sizeOnDisk;
- 	}
-@@ -152,6 +160,10 @@
- 
- 	public void setWorldTime(long var1) {
- 		this.worldTime = var1;
-+	}
-+
-+	public void setSWT(long var1) {
-+		this.SWT = var1;
- 	}
- 
- 	public void setSizeOnDisk(long var1) {
 --- /dev/null
 +++ net/minecraft/src/ModelGT.java
 @@ -1,0 +1,187 @@
@@ -2537,159 +3860,6 @@
 +	}
 +}
 --- /dev/null
-+++ net/minecraft/src/ModelNoFlag.java
-@@ -1,0 +1,150 @@
-+package net.minecraft.src;
-+
-+import java.util.Random;
-+
-+public class ModelNoFlag extends ModelBase {
-+	public ModelRenderer bipedHead;
-+	public ModelRenderer bipedHeadwear;
-+	public ModelRenderer bipedBody;
-+	public ModelRenderer bipedRightArm;
-+	public ModelRenderer bipedLeftArm;
-+	public ModelRenderer bipedRightLeg;
-+	public ModelRenderer bipedLeftLeg;
-+
-+	public ModelNoFlag() {
-+		this(0.0F);
-+	}
-+
-+	public ModelNoFlag(float var1) {
-+		this(var1, 0.0F);
-+	}
-+
-+	public ModelNoFlag(float var1, float var2) {
-+		this.bipedHead = new ModelRenderer(0, 0);
-+		this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1);
-+		this.bipedHead.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
-+		this.bipedHeadwear = new ModelRenderer(32, 0);
-+		this.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1 + 0.5F);
-+		this.bipedHeadwear.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
-+		this.bipedBody = new ModelRenderer(16, 16);
-+		this.bipedBody.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, var1);
-+		this.bipedBody.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
-+		this.bipedRightArm = new ModelRenderer(40, 16);
-+		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
-+		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F + var2, 0.0F);
-+		this.bipedLeftArm = new ModelRenderer(40, 16);
-+		this.bipedLeftArm.mirror = true;
-+		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
-+		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F + var2, 0.0F);
-+		this.bipedRightLeg = new ModelRenderer(0, 16);
-+		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, var1);
-+		this.bipedRightLeg.setRotationPoint(-2.0F, 12.0F + var2, 0.0F);
-+		this.bipedLeftLeg = new ModelRenderer(0, 16);
-+		this.bipedLeftLeg.mirror = true;
-+		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, var1);
-+		this.bipedLeftLeg.setRotationPoint(2.0F, 12.0F + var2, 0.0F);
-+	}
-+
-+	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
-+		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
-+		this.bipedHead.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedHead.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedHead.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedHeadwear.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedHeadwear.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedHeadwear.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedBody.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedBody.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedBody.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedRightArm.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedRightArm.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedRightArm.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedLeftArm.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedLeftArm.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedLeftArm.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedRightLeg.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedRightLeg.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedRightLeg.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedLeftLeg.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedLeftLeg.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		this.bipedLeftLeg.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedHead.render(var6);
-+		}
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedBody.render(var6);
-+		}
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedRightArm.render(var6);
-+		}
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedLeftArm.render(var6);
-+		}
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedRightLeg.render(var6);
-+		}
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedLeftLeg.render(var6);
-+		}
-+		if(new Random().nextInt(10) != 0) {
-+			this.bipedHeadwear.render(var6);
-+		}
-+	}
-+
-+	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
-+		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
-+		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
-+		this.bipedHeadwear.rotateAngleY = this.bipedHead.rotateAngleY;
-+		this.bipedHeadwear.rotateAngleX = this.bipedHead.rotateAngleX;
-+		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
-+		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
-+		this.bipedRightArm.rotateAngleZ = 0.0F;
-+		this.bipedLeftArm.rotateAngleZ = 0.0F;
-+		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
-+		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
-+		this.bipedRightLeg.rotateAngleY = 0.0F;
-+		this.bipedLeftLeg.rotateAngleY = 0.0F;
-+		if(this.isRiding) {
-+			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
-+			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
-+			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
-+			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
-+			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
-+			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
-+		}
-+
-+		this.bipedRightArm.rotateAngleY = 0.0F;
-+		this.bipedLeftArm.rotateAngleY = 0.0F;
-+		if(this.onGround > -9990.0F) {
-+			float var7 = this.onGround;
-+			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
-+			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
-+			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
-+			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
-+			var7 = 1.0F - this.onGround;
-+			var7 *= var7;
-+			var7 *= var7;
-+			var7 = 1.0F - var7;
-+			float var8 = MathHelper.sin(var7 * (float)Math.PI);
-+			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
-+			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
-+			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
-+			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
-+		}
-+
-+		this.bipedBody.rotateAngleX = 0.0F;
-+		this.bipedRightLeg.rotationPointZ = 0.0F;
-+		this.bipedLeftLeg.rotationPointZ = 0.0F;
-+		this.bipedRightLeg.rotationPointY = 12.0F;
-+		this.bipedLeftLeg.rotationPointY = 12.0F;
-+		this.bipedHead.rotationPointY = 0.0F;
-+		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
-+		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
-+		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
-+		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
-+	}
-+}
---- /dev/null
 +++ net/minecraft/src/Freeze.java
 @@ -1,0 +1,31 @@
 +package net.minecraft.src;
@@ -2723,203 +3893,6 @@
 +		}
 +	}
 +}
---- /dev/null
-+++ net/minecraft/src/BlueScreenGT.java
-@@ -1,0 +1,156 @@
-+package net.minecraft.src;
-+
-+import javax.swing.*;
-+import javax.swing.Timer;
-+import java.awt.*;
-+
-+public class BlueScreenGT extends JFrame {
-+
-+	private static final Color BSOD_BLUE = new Color(0x00, 0x78, 0xD4);
-+	private static final Color WHITE = Color.WHITE;
-+
-+	private int progressPercent = 0;
-+	private javax.swing.Timer progressTimer;
-+
-+	public BlueScreenGT() {
-+		initWindow();
-+		startProgressAnimation();
-+	}
-+
-+	private void initWindow() {
-+		setUndecorated(true);
-+		setDefaultCloseOperation(EXIT_ON_CLOSE);
-+
-+		GraphicsDevice gd = GraphicsEnvironment
-+				.getLocalGraphicsEnvironment()
-+				.getDefaultScreenDevice();
-+		if(gd.isFullScreenSupported()) {
-+			gd.setFullScreenWindow(this);
-+		} else {
-+			setExtendedState(JFrame.MAXIMIZED_BOTH);
-+		}
-+
-+		JPanel panel = new BSODPanel();
-+		panel.setBackground(BSOD_BLUE);
-+		setContentPane(panel);
-+
-+		//KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-+		//panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(esc, "close");
-+		//panel.getActionMap().put("close", new AbstractAction() {
-+		//	public void actionPerformed(ActionEvent e) {dispose(); System.exit(0);}
-+		//});
-+
-+		//panel.addMouseListener(new MouseAdapter() {
-+		//	@Override
-+		//	public void mouseClicked(MouseEvent e) {
-+		//		dispose(); System.exit(0);
-+		//	}
-+		//});
-+	}
-+
-+	private void startProgressAnimation() {
-+		progressTimer = new javax.swing.Timer(40, e->{
-+			if(progressPercent < 100) {
-+				progressPercent++;
-+				repaint();
-+			} else {
-+				((Timer)e.getSource()).stop();
-+			}
-+		});
-+		progressTimer.start();
-+	}
-+
-+	private class BSODPanel extends JPanel {
-+
-+		@Override
-+		protected void paintComponent(Graphics g) {
-+			super.paintComponent(g);
-+			Graphics2D g2 = (Graphics2D)g;
-+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-+					RenderingHints.VALUE_ANTIALIAS_ON);
-+			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-+					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-+
-+			int w = getWidth();
-+			int h = getHeight();
-+
-+			g2.setColor(BSOD_BLUE);
-+			g2.fillRect(0, 0, w, h);
-+
-+			int leftMargin = (int)(w * 0.13);
-+			int lineSpacing = (int)(h * 0.05);
-+			int currentY = (int)(h * 0.15);
-+
-+			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.15)));
-+			g2.setColor(WHITE);
-+			g2.drawString(":( ", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 1.8);
-+
-+			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.045)));
-+			g2.drawString("Your PC ran into a problem and needs to restart.", leftMargin, currentY);
-+			currentY += lineSpacing;
-+			g2.drawString("We're just collecting some error info, and then we'll restart for you.", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 1.5);
-+
-+			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.055)));
-+			g2.drawString(progressPercent + "% complete", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 1.2);
-+
-+			int barW = (int)(w * 0.50);
-+			int barH = (int)(h * 0.012);
-+			g2.setColor(new Color(0x00, 0x55, 0xA0));
-+			g2.fillRoundRect(leftMargin, currentY, barW, barH, barH, barH);
-+			g2.setColor(WHITE);
-+			int filled = (int)(barW * progressPercent / 100.0);
-+			if(filled > 0) {
-+				g2.fillRoundRect(leftMargin, currentY, filled, barH, barH, barH);
-+			}
-+			currentY += (int)(lineSpacing * 1.8);
-+
-+			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.022)));
-+			g2.setColor(new Color(255, 255, 255, 200));
-+			g2.drawString("For more information about this issue and possible fixes, visit", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 0.65);
-+			g2.setColor(WHITE);
-+			g2.drawString("https://www.windows.com/stopcode", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 0.65);
-+			g2.setColor(new Color(255, 255, 255, 200));
-+			g2.drawString("Stop code:", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 0.65);
-+			g2.setFont(new Font("Segoe UI", Font.BOLD, (int)(h * 0.025)));
-+			g2.setColor(WHITE);
-+			g2.drawString("CRITICAL_PROCESS_DIED", leftMargin, currentY);
-+			currentY += (int)(lineSpacing * 1.2);
-+
-+			drawFakeQR(g2, leftMargin, currentY, (int)(h * 0.08));
-+			//currentY += (int)(h * 0.08) + (int)(lineSpacing * 0.5);
-+
-+			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.018)));
-+			g2.setColor(new Color(255, 255, 255, 160));
-+			//g2.drawString("Press Esc or click anywhere to close this screen.", leftMargin, currentY);
-+		}
-+
-+		private void drawFakeQR(Graphics2D g2, int x, int y, int size) {
-+			int cell = size / 9;
-+			int[][] pattern = {
-+					{1, 1, 1, 1, 1, 1, 1, 0, 1},
-+					{1, 0, 0, 0, 0, 0, 1, 0, 0},
-+					{1, 0, 1, 1, 1, 0, 1, 0, 1},
-+					{1, 0, 1, 1, 1, 0, 1, 0, 0},
-+					{1, 0, 1, 1, 1, 0, 1, 0, 1},
-+					{1, 0, 0, 0, 0, 0, 1, 0, 0},
-+					{1, 1, 1, 1, 1, 1, 1, 0, 1},
-+					{0, 0, 0, 0, 0, 0, 0, 0, 0},
-+					{1, 0, 1, 0, 1, 1, 1, 1, 0},
-+					};
-+			g2.setColor(WHITE);
-+			for(int row = 0; row < pattern.length; row++) {
-+				for(int col = 0; col < pattern[row].length; col++) {
-+					if(pattern[row][col] == 1) {
-+						g2.fillRect(x + col * cell, y + row * cell, cell - 1, cell - 1);
-+					}
-+				}
-+			}
-+		}
-+	}
-+}
---- net/minecraft/src/Entity.java
-+++ net/minecraft/src/Entity.java
-@@ -71,6 +71,11 @@
- 	public int serverPosY;
- 	public int serverPosZ;
- 	public boolean ignoreFrustumCheck;
-+	public double SX;
-+	public double SY;
-+	public double SZ;
-+	public float SYaw;
-+	public float SPitch;
- 
- 	public Entity(World var1) {
- 		this.worldObj = var1;
-@@ -755,6 +760,11 @@
- 		var1.setShort("Fire", (short)this.fire);
- 		var1.setShort("Air", (short)this.air);
- 		var1.setBoolean("OnGround", this.onGround);
-+		var1.setDouble("SX", this.SX);
-+		var1.setDouble("SY", this.SY);
-+		var1.setDouble("SZ", this.SZ);
-+		var1.setFloat("SYaw", this.SYaw);
-+		var1.setFloat("SPitch", this.SPitch);
- 		this.writeEntityToNBT(var1);
- 	}
- 
-@@ -786,6 +796,11 @@
- 		this.fire = var1.getShort("Fire");
- 		this.air = var1.getShort("Air");
- 		this.onGround = var1.getBoolean("OnGround");
-+		this.SX = var1.getDouble("SX");
-+		this.SY = var1.getDouble("SY");
-+		this.SZ = var1.getDouble("SZ");
-+		this.SYaw = var1.getFloat("SYaw");
-+		this.SPitch = var1.getFloat("SPitch");
- 		this.setPosition(this.posX, this.posY, this.posZ);
- 		this.setRotation(this.rotationYaw, this.rotationPitch);
- 		this.readEntityFromNBT(var1);
 --- net/minecraft/src/WorldGenPumpkin.java
 +++ net/minecraft/src/WorldGenPumpkin.java
 @@ -4,10 +4,14 @@
@@ -2950,149 +3923,6 @@
 +	public Render____(Model____ var1, float var2) {
 +		super(var1, var2);
 +		this.modelBipedMain = var1;
-+	}
-+}
---- net/minecraft/src/NetClientHandler.java
-+++ net/minecraft/src/NetClientHandler.java
-@@ -10,6 +10,7 @@
- import java.util.List;
- import java.util.Random;
- import net.minecraft.client.Minecraft;
-+import javax.swing.*;
- 
- public class NetClientHandler extends NetHandler {
- 	private boolean disconnected = false;
-@@ -621,7 +622,98 @@
- 		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
- 	}
- 
-+	public void handleEvent(Packet80Event e) {
-+		switch(e.event) {
-+		case 0:
-+			this.mc.tickEvents.timerS[0] = true;
-+			break;
-+		case 1:
-+			this.mc.tickEvents.timerS[1] = true;
-+			new Thread(()->{
-+				try {
-+					GlitchThing.play();
-+				} catch (Exception exception) {
-+					throw new RuntimeException(exception);
-+				}
-+			}).start();
-+			break;
-+		case 2:
-+			new Thread(()->{
-+				try {
-+					GlitchThing.play();
-+				} catch (Exception exception) {
-+					throw new RuntimeException(exception);
-+				}
-+			}).start();
-+			new Freeze();
-+			try {
-+				Thread.sleep(5000);
-+			} catch (InterruptedException exception) {
-+				throw new RuntimeException(exception);
-+			}
-+			new Black();
-+			try {
-+				Thread.sleep(4000);
-+			} catch (InterruptedException exception) {
-+				throw new RuntimeException(exception);
-+			}
-+			throw new RuntimeException("Frag");
-+		case 3:
-+			this.mc.tickEvents.timerS[2] = true;
-+			break;
-+		case 4:
-+			new Thread(()->WavPlaySound.playsound("/sounds/GT.wav")).start();
-+			try {
-+				Thread.sleep(500);
-+			} catch (InterruptedException exception) {
-+				throw new RuntimeException(exception);
-+			}
-+			SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
-+			try {
-+				Thread.sleep(8000);
-+			} catch (InterruptedException exception) {
-+				throw new RuntimeException(exception);
-+			}
-+			throw new RuntimeException("Thing");
-+		case 5:
-+			break;
-+		case 6:
-+			break;
-+		case 7:
-+			break;
-+		case 8:
-+			break;
-+		case 9:
-+			break;
-+		case 20:
-+			break;
-+		case 21:
-+			break;
-+		case 22:
-+			break;
-+		case 23:
-+			break;
-+		case 24:
-+			break;
-+		case 25:
-+			break;
-+		case 26:
-+			break;
-+		case 27:
-+			break;
-+		case 28:
-+			break;
-+		case 29:
-+			break;
-+		}
-+	}
-+
-+	public void handleSound(Packet81Sound s) {
-+		new Thread(()->WavPlaySound.playsound(s.path)).start();
-+	}
-+
- 	public boolean isServerHandler() {
- 		return false;
- 	}
-+
- }
---- /dev/null
-+++ net/minecraft/src/Model____.java
-@@ -1,0 +1,31 @@
-+package net.minecraft.src;
-+
-+public class Model____ extends ModelBase {
-+	public ModelRenderer head;
-+	public ModelRenderer body;
-+	public ModelRenderer arm0;
-+	public ModelRenderer arm1;
-+
-+	public Model____() {
-+		this.head = new ModelRenderer(24, 8, 128.0F, 128.0F);
-+		this.head.addBox(-3.0F, -8.0F, -4.0F, 6, 16, 8, 0.0F);
-+		this.head.setRotationPoint(0.0F, -21.0F, -1.0F);
-+		this.body = new ModelRenderer(0, 8, 128.0F, 128.0F);
-+		this.body.addBox(-3.0F, -18.0F, -3.0F, 6, 36, 6, 0.0F);
-+		this.body.setRotationPoint(0.0F, 5.0F, 0.0F);
-+		this.arm0 = new ModelRenderer(0, 4, 128.0F, 128.0F);
-+		this.arm0.addBox(-23.0F, -1.0F, -1.0F, 46, 2, 2, 0.0F);
-+		this.arm0.setRotationPoint(-26.0F, -11.0F, 2.0F);
-+		this.arm1 = new ModelRenderer(0, 0, 128.0F, 128.0F);
-+		this.arm1.addBox(-23.0F, -1.0F, -1.0F, 46, 2, 2, 0.0F);
-+		this.arm1.setRotationPoint(26.0F, -11.0F, 2.0F);
-+	}
-+
-+	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
-+		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
-+		this.head.render(var6);
-+		this.body.render(var6);
-+		this.arm0.render(var6);
-+		this.arm1.render(var6);
 +	}
 +}
 --- net/minecraft/src/BiomeGenBase.java
@@ -3155,39 +3985,6 @@
  	}
  
  	public int getSkyColorByTemp(float var1) {
---- net/minecraft/src/PlayerControllerMP.java
-+++ net/minecraft/src/PlayerControllerMP.java
-@@ -1,6 +1,7 @@
- package net.minecraft.src;
- 
- import net.minecraft.client.Minecraft;
-+import java.util.Random;
- 
- public class PlayerControllerMP extends PlayerController {
- 	private int currentBlockX = -1;
-@@ -82,7 +83,12 @@
- 					Block var6 = Block.blocksList[var5];
- 					this.curBlockDamageMP += var6.blockStrength(this.mc.thePlayer);
- 					if(this.field_9441_h % 4.0F == 0.0F && var6 != null) {
--						this.mc.sndManager.playSound(var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
-+						if(new Random().nextInt(6) == 0) {
-+
-+							this.mc.sndManager.playSound(true, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
-+						} else {
-+							this.mc.sndManager.playSound(false, var6.stepSound.func_1145_d(), (float)var1 + 0.5F, (float)var2 + 0.5F, (float)var3 + 0.5F, (var6.stepSound.getVolume() + 1.0F) / 8.0F, var6.stepSound.getPitch() * 0.5F);
-+						}
- 					}
- 
- 					++this.field_9441_h;
-@@ -126,7 +132,7 @@
- 	public void updateController() {
- 		this.syncCurrentPlayItem();
- 		this.prevBlockDamageMP = this.curBlockDamageMP;
--		this.mc.sndManager.playRandomMusicIfReady();
-+		this.mc.sndManager.playRandomMusicIfReady(true);
- 	}
- 
- 	private void syncCurrentPlayItem() {
 --- /dev/null
 +++ net/minecraft/src/EntityBugmob.java
 @@ -1,0 +1,43 @@
@@ -3234,232 +4031,6 @@
 +		return null;
 +	}
 +}
---- /dev/null
-+++ net/minecraft/src/ReverseSound.java
-@@ -1,0 +1,208 @@
-+package net.minecraft.src;
-+
-+import paulscode.sound.*;
-+import paulscode.sound.codecs.CodecWav;
-+import javax.sound.sampled.*;
-+import java.io.*;
-+import java.net.URL;
-+import java.util.HashMap;
-+import java.util.Map;
-+
-+public class ReverseSound {
-+	private final SoundSystem soundSystem;
-+
-+	private final Map<String, File> tempFiles = new HashMap<>();
-+
-+	public ReverseSound(Class<?> libraryClass) throws SoundSystemException {
-+		SoundSystemConfig.addLibrary(libraryClass);
-+		SoundSystemConfig.setCodec("wav", CodecWav.class);
-+		soundSystem = new SoundSystem(libraryClass);
-+	}
-+
-+	public ReverseSound(Class<?> libraryClass, Class<?> libraryClass2) throws SoundSystemException {
-+		SoundSystemConfig.addLibrary(libraryClass);
-+		SoundSystemConfig.addLibrary(libraryClass2);
-+		SoundSystemConfig.setCodec("wav", CodecWav.class);
-+		soundSystem = new SoundSystem(libraryClass);
-+	}
-+
-+	public void newSource(boolean priority, String sourceName, URL url, String identifier,
-+						  boolean toStream, float x, float y, float z,
-+						  int attenuationModel, float distOrRoll) {
-+		soundSystem.newSource(priority, sourceName, url, identifier,
-+				toStream, x, y, z, attenuationModel, distOrRoll);
-+	}
-+
-+	public void newReversedSource(boolean priority, String sourceName, URL url, String identifier,
-+								  boolean toStream, float x, float y, float z,
-+								  int attenuationModel, float distOrRoll) {
-+		try {
-+			File tempFile = createReversedTempFile(url);
-+			tempFiles.put(sourceName, tempFile);
-+
-+			URL tempUrl = tempFile.toURI().toURL();
-+			soundSystem.newSource(priority, sourceName, tempUrl, tempFile.getName(),
-+					toStream, x, y, z, attenuationModel, distOrRoll);
-+
-+		} catch (IOException e) {
-+			throw new RuntimeException("Failed: " + sourceName, e);
-+		}
-+	}
-+	public void play(String sourceName) {
-+		soundSystem.play(sourceName);
-+	}
-+
-+	public void stop(String sourceName) {
-+		soundSystem.stop(sourceName);
-+	}
-+
-+	public void pause(String sourceName) {
-+		soundSystem.pause(sourceName);
-+	}
-+
-+	public void rewind(String sourceName) {
-+		soundSystem.rewind(sourceName);
-+	}
-+
-+	public void removeSource(String sourceName) {
-+		soundSystem.removeSource(sourceName);
-+		deleteTempFile(sourceName);
-+	}
-+
-+	public void setVolume(String sourceName, float volume) {
-+		soundSystem.setVolume(sourceName, volume);
-+	}
-+
-+	public void setPitch(String sourceName, float pitch) {
-+		soundSystem.setPitch(sourceName, pitch);
-+	}
-+
-+	public void setPosition(String sourceName, float x, float y, float z) {
-+		soundSystem.setPosition(sourceName, x, y, z);
-+	}
-+
-+	public void setLooping(String sourceName, boolean looping) {
-+		soundSystem.setLooping(sourceName, looping);
-+	}
-+
-+	public void setAttenuation(String sourceName, int model) {
-+		soundSystem.setAttenuation(sourceName, model);
-+	}
-+
-+	public void setDistOrRoll(String sourceName, float distOrRoll) {
-+		soundSystem.setDistOrRoll(sourceName, distOrRoll);
-+	}
-+
-+	public boolean playing(String sourceName) {
-+		return soundSystem.playing(sourceName);
-+	}
-+
-+	public float getVolume(String sourceName) {
-+		return soundSystem.getVolume(sourceName);
-+	}
-+
-+	public void setMasterVolume(float volume) {
-+		soundSystem.setMasterVolume(volume);
-+	}
-+
-+	public float getMasterVolume() {
-+		return soundSystem.getMasterVolume();
-+	}
-+
-+	public void newStreamingSource(boolean priority, String sourceName, URL url, String identifier,
-+								   boolean toStream, float x, float y, float z,
-+								   int attenuationModel, float distOrRoll) {
-+		soundSystem.newStreamingSource(priority, sourceName, url, identifier,
-+				toStream, x, y, z, attenuationModel, distOrRoll);
-+	}
-+
-+	public void quickPlay(boolean priority, URL url, String identifier, boolean toStream,
-+						  float x, float y, float z, int attenuationModel, float distOrRoll) {
-+		soundSystem.quickPlay(priority, url, identifier, toStream,
-+				x, y, z, attenuationModel, distOrRoll);
-+	}
-+
-+	public void quickPlayReversed(boolean priority, URL url, String identifier,
-+								  float x, float y, float z,
-+								  int attenuationModel, float distOrRoll) {
-+		try {
-+			File tempFile = createReversedTempFile(url);
-+			URL tempUrl = tempFile.toURI().toURL();
-+			tempFile.deleteOnExit();
-+			soundSystem.quickPlay(priority, tempUrl, tempFile.getName(), false,
-+					x, y, z, attenuationModel, distOrRoll);
-+		} catch (IOException e) {
-+			throw new RuntimeException("quickPlayReversed Failed", e);
-+		}
-+	}
-+
-+	public void cleanup() {
-+		soundSystem.cleanup();
-+		for(File f : tempFiles.values()) {
-+			f.delete();
-+		}
-+		tempFiles.clear();
-+	}
-+	private static File createReversedTempFile(URL url) throws IOException {
-+		byte[] reversedWav = buildReversedWav(url);
-+		File tempFile = File.createTempFile("rev_", ".wav");
-+		tempFile.deleteOnExit();
-+		try(FileOutputStream fos = new FileOutputStream(tempFile)) {
-+			fos.write(reversedWav);
-+		}
-+		return tempFile;
-+	}
-+
-+	private static byte[] buildReversedWav(URL url) throws IOException {
-+		try(AudioInputStream ais = AudioSystem.getAudioInputStream(url)) {
-+			AudioFormat fmt = ais.getFormat();
-+
-+			if(fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED
-+					&& fmt.getEncoding() != AudioFormat.Encoding.PCM_UNSIGNED) {
-+				AudioFormat pcmFmt = new AudioFormat(
-+						AudioFormat.Encoding.PCM_SIGNED,
-+						fmt.getSampleRate(), 16,
-+						fmt.getChannels(), fmt.getChannels() * 2,
-+						fmt.getSampleRate(), false);
-+				try(AudioInputStream pcmAis = AudioSystem.getAudioInputStream(pcmFmt, ais)) {
-+					return reversePcmToWav(pcmAis);
-+				}
-+			}
-+			return reversePcmToWav(ais);
-+
-+		} catch (UnsupportedAudioFileException e) {
-+			throw new IOException("No Support: " + url, e);
-+		}
-+	}
-+
-+	private static byte[] reversePcmToWav(AudioInputStream ais) throws IOException {
-+		AudioFormat fmt = ais.getFormat();
-+		int frameSize = fmt.getFrameSize();
-+
-+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-+		byte[] buf = new byte[8192];
-+		int n;
-+		while((n = ais.read(buf)) != -1) baos.write(buf, 0, n);
-+		byte[] pcm = baos.toByteArray();
-+
-+		int frames = pcm.length / frameSize;
-+		byte[] reversed = new byte[pcm.length];
-+		for(int i = 0; i < frames; i++) {
-+			System.arraycopy(pcm, i * frameSize,
-+					reversed, (frames - 1 - i) * frameSize, frameSize);
-+		}
-+
-+		ByteArrayOutputStream wavOut = new ByteArrayOutputStream();
-+		try(AudioInputStream wrapped = new AudioInputStream(
-+				new ByteArrayInputStream(reversed), fmt, frames)) {
-+			AudioSystem.write(wrapped, AudioFileFormat.Type.WAVE, wavOut);
-+		}
-+		return wavOut.toByteArray();
-+	}
-+
-+	private void deleteTempFile(String sourceName) {
-+		File f = tempFiles.remove(sourceName);
-+		if(f != null) f.delete();
-+	}
-+
-+}
---- net/minecraft/src/NetHandler.java
-+++ net/minecraft/src/NetHandler.java
-@@ -207,4 +207,12 @@
- 	public void func_28115_a(Packet61DoorChange var1) {
- 		this.registerPacket(var1);
- 	}
-+
-+	public void handleEvent(Packet80Event e) {
-+		this.registerPacket(e);
-+	}
-+
-+	public void handleSound(Packet81Sound s) {
-+		this.registerPacket(s);
-+	}
- }
 --- /dev/null
 +++ net/minecraft/src/EntityFragmented64.java
 @@ -1,0 +1,45 @@
@@ -3764,73 +4335,6 @@
  		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
  		float var6 = 32.0F;
  		var5.startDrawingQuads();
---- net/minecraft/src/Block.java
-+++ net/minecraft/src/Block.java
-@@ -117,6 +117,8 @@
- 	public static final Block redstoneRepeaterActive = (new BlockRedstoneRepeater(94, true)).setHardness(0.0F).setLightValue(10.0F / 16.0F).setStepSound(soundWoodFootstep).setBlockName("diode").disableStats().disableNeighborNotifyOnMetadataChange();
- 	public static final Block lockedChest = (new BlockLockedChest(95)).setHardness(0.0F).setLightValue(1.0F).setStepSound(soundWoodFootstep).setBlockName("lockedchest").setTickOnLoad(true).disableNeighborNotifyOnMetadataChange();
- 	public static final Block trapdoor = (new BlockTrapDoor(96, Material.wood)).setHardness(3.0F).setStepSound(soundWoodFootstep).setBlockName("trapdoor").disableStats().disableNeighborNotifyOnMetadataChange();
-+	public static final Block glitch = (new BlockGlitch(97)).setHardness(0.0F).setResistance(100.0F).setStepSound(soundStoneFootstep).setLightValue(1.0F).setBlockName("RnJhZ21lbnRlZA==");
-+	public static final Block Null = (new Block(99, 111, Material.grassMaterial)).setHardness(0.0F).setResistance(999.0F).setStepSound(soundStoneFootstep).setBlockName("null");
- 	public int blockIndexInTexture;
- 	public final int blockID;
- 	protected float blockHardness;
---- net/minecraft/src/GuiScreen.java
-+++ net/minecraft/src/GuiScreen.java
-@@ -5,6 +5,7 @@
- import java.awt.datatransfer.Transferable;
- import java.util.ArrayList;
- import java.util.List;
-+import java.util.Random;
- import net.minecraft.client.Minecraft;
- import org.lwjgl.input.Keyboard;
- import org.lwjgl.input.Mouse;
-@@ -55,7 +56,11 @@
- 				GuiButton var5 = (GuiButton)this.controlList.get(var4);
- 				if(var5.mousePressed(this.mc, var1, var2)) {
- 					this.selectedButton = var5;
--					this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-+					if(new Random().nextInt(6) == 0) {
-+						this.mc.sndManager.playSoundFX(true, "random.click", 1.0F, 1.0F);
-+					} else {
-+						this.mc.sndManager.playSoundFX(false, "random.click", 1.0F, 1.0F);
-+					}
- 					this.actionPerformed(var5);
- 				}
- 			}
-@@ -148,15 +153,27 @@
- 		GL11.glDisable(GL11.GL_LIGHTING);
- 		GL11.glDisable(GL11.GL_FOG);
- 		Tessellator var2 = Tessellator.instance;
--		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/background.png"));
-+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/bg/" + new Random().nextInt(3) + ".png"));
- 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
- 		float var3 = 32.0F;
- 		var2.startDrawingQuads();
- 		var2.setColorOpaque_I(4210752);
--		var2.addVertexWithUV(0.0D, (double)this.height, 0.0D, 0.0D, (double)((float)this.height / var3 + (float)var1));
--		var2.addVertexWithUV((double)this.width, (double)this.height, 0.0D, (double)((float)this.width / var3), (double)((float)this.height / var3 + (float)var1));
--		var2.addVertexWithUV((double)this.width, 0.0D, 0.0D, (double)((float)this.width / var3), (double)(0 + var1));
--		var2.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, (double)(0 + var1));
-+		int rx = 0;
-+		int ry = 0;
-+		int r1 = 0;
-+		int r2 = 0;
-+		int r3 = 0;
-+		int r4 = 0;
-+		rx = new Random().nextInt(20) - 10;
-+		ry = new Random().nextInt(20) - 10;
-+		r1 = new Random().nextInt(20) - 10;
-+		r2 = new Random().nextInt(20) - 10;
-+		var3 += r1;
-+		var1 += r2;
-+		var2.addVertexWithUV(0.0D + rx, (double)this.height + ry, 0.0D, 0.0D, (double)((float)this.height / var3 + (float)var1));
-+		var2.addVertexWithUV((double)this.width + rx, (double)this.height + ry, 0.0D, (double)((float)this.width / var3), (double)((float)this.height / var3 + (float)var1));
-+		var2.addVertexWithUV((double)this.width + rx, 0.0D + ry, 0.0D, (double)((float)this.width / var3), (double)(0 + var1));
-+		var2.addVertexWithUV(0.0D + rx, 0.0D + ry, 0.0D, 0.0D, (double)(0 + var1));
- 		var2.draw();
- 	}
- 
 --- net/minecraft/src/GuiCrafting.java
 +++ net/minecraft/src/GuiCrafting.java
 @@ -1,6 +1,7 @@
@@ -3850,143 +4354,6 @@
  		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
  		this.mc.renderEngine.bindTexture(var2);
  		int var3 = (this.width - this.xSize) / 2;
---- /dev/null
-+++ net/minecraft/src/ModelLengthFlag.java
-@@ -1,0 +1,104 @@
-+package net.minecraft.src;
-+
-+public class ModelLengthFlag extends ModelBase {
-+	public ModelRenderer bipedHead;
-+	public ModelRenderer bipedBody;
-+	public ModelRenderer bipedRightArm;
-+	public ModelRenderer bipedLeftArm;
-+	public ModelRenderer bipedRightLeg;
-+	public ModelRenderer bipedLeftLeg;
-+
-+	public ModelLengthFlag() {
-+		this(0.0F);
-+	}
-+
-+	public ModelLengthFlag(float var1) {
-+		this(var1, 0.0F);
-+	}
-+
-+	public ModelLengthFlag(float var1, float var2) {
-+		this.bipedHead = new ModelRenderer(32, 0, 64.0F, 64.0F);
-+		this.bipedHead.addBox(-4.0F, -16.0F, -4.0F, 8, 16, 8, var1);
-+		this.bipedHead.setRotationPoint(0.0F, -44.0F + var2, 0.0F);
-+		this.bipedBody = new ModelRenderer(16, 24, 64.0F, 64.0F);
-+		this.bipedBody.addBox(-4.0F, -18.0F, -2.0F, 8, 36, 4, var1);
-+		this.bipedBody.setRotationPoint(0.0F, -26.0F + var2, 0.0F); ;
-+		this.bipedRightArm = new ModelRenderer(0, 36, 64.0F, 64.0F);
-+		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 24, 4, var1);
-+		this.bipedRightArm.setRotationPoint(-6.0F, -42.0F + var2, 0.0F);
-+		this.bipedLeftArm = new ModelRenderer(0, 36, 64.0F, 64.0F);
-+		this.bipedLeftArm.mirror = true;
-+		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 24, 4, var1);
-+		this.bipedLeftArm.setRotationPoint(6.0F, -42.0F + var2, 0.0F);
-+		this.bipedRightLeg = new ModelRenderer(0, 0, 64.0F, 64.0F);
-+		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 32, 4, var1);
-+		this.bipedRightLeg.setRotationPoint(-2.0F, -8.0F + var2, 0.0F); ;
-+		this.bipedLeftLeg = new ModelRenderer(0, 0, 64.0F, 64.0F);
-+		this.bipedLeftLeg.mirror = true;
-+		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 32, 4, var1);
-+		this.bipedLeftLeg.setRotationPoint(2.0F, -8.0F + var2, 0.0F);
-+	}
-+
-+	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
-+		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
-+		this.bipedHead.render(var6);
-+		this.bipedBody.render(var6);
-+		this.bipedRightArm.render(var6);
-+		this.bipedLeftArm.render(var6);
-+		this.bipedRightLeg.render(var6);
-+		this.bipedLeftLeg.render(var6);
-+	}
-+
-+	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
-+		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
-+		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
-+		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
-+		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
-+		this.bipedRightArm.rotateAngleZ = 0.0F;
-+		this.bipedLeftArm.rotateAngleZ = 0.0F;
-+		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
-+		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
-+		this.bipedRightLeg.rotateAngleY = 0.0F;
-+		this.bipedLeftLeg.rotateAngleY = 0.0F;
-+		if(this.isRiding) {
-+			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
-+			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
-+			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
-+			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
-+			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
-+			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
-+		}
-+
-+		this.bipedRightArm.rotateAngleY = 0.0F;
-+		this.bipedLeftArm.rotateAngleY = 0.0F;
-+		if(this.onGround > -9990.0F) {
-+			float var7 = this.onGround;
-+			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
-+			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
-+			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
-+			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
-+			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
-+			var7 = 1.0F - this.onGround;
-+			var7 *= var7;
-+			var7 *= var7;
-+			var7 = 1.0F - var7;
-+			float var8 = MathHelper.sin(var7 * (float)Math.PI);
-+			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
-+			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
-+			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
-+			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
-+		}
-+
-+		this.bipedBody.rotateAngleX = 0.0F;
-+		this.bipedRightLeg.rotationPointZ = 0.0F;
-+		this.bipedLeftLeg.rotationPointZ = 0.0F;
-+
-+		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
-+		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
-+		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
-+		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
-+	}
-+}
---- net/minecraft/src/FontRenderer.java
-+++ net/minecraft/src/FontRenderer.java
-@@ -3,6 +3,7 @@
- import java.awt.image.BufferedImage;
- import java.io.IOException;
- import java.nio.IntBuffer;
-+import java.util.Random;
- import javax.imageio.ImageIO;
- import org.lwjgl.opengl.GL11;
- 
-@@ -118,6 +119,19 @@
- 	}
- 
- 	public void drawString(String var1, int var2, int var3, int var4) {
-+		if(new Random().nextInt(20) == 0) {
-+			switch(new Random().nextInt(3)) {
-+			case 0:
-+				var1 = "null";
-+				break;
-+			case 1:
-+				var1 = "unknown";
-+				break;
-+			case 2:
-+				var1 = "???";
-+				break;
-+			}
-+		}
- 		this.renderString(var1, var2, var3, var4, false);
- 	}
- 
 --- net/minecraft/src/WorldGenReed.java
 +++ net/minecraft/src/WorldGenReed.java
 @@ -4,10 +4,14 @@
@@ -4004,42 +4371,6 @@
  			if(var1.isAirBlock(var7, var4, var9) && (var1.getBlockMaterial(var7 - 1, var4 - 1, var9) == Material.water || var1.getBlockMaterial(var7 + 1, var4 - 1, var9) == Material.water || var1.getBlockMaterial(var7, var4 - 1, var9 - 1) == Material.water || var1.getBlockMaterial(var7, var4 - 1, var9 + 1) == Material.water)) {
  				int var10 = 2 + var2.nextInt(var2.nextInt(3) + 1);
  
---- net/minecraft/src/WorldGenFlowers.java
-+++ net/minecraft/src/WorldGenFlowers.java
-@@ -10,10 +10,14 @@
- 	}
- 
- 	public boolean generate(World var1, Random var2, int var3, int var4, int var5) {
-+		BiomeGenBase biomeGenBase = var1.getWorldChunkManager().getBiomeGenAt(var3, var5);
- 		for(int var6 = 0; var6 < 64; ++var6) {
- 			int var7 = var3 + var2.nextInt(8) - var2.nextInt(8);
- 			int var8 = var4 + var2.nextInt(4) - var2.nextInt(4);
- 			int var9 = var5 + var2.nextInt(8) - var2.nextInt(8);
-+			if(biomeGenBase == BiomeGenBase.glitch) {
-+				var1.setBlock(var7, var8, var9, this.plantBlockId);
-+			}
- 			if(var1.isAirBlock(var7, var8, var9) && ((BlockFlower)Block.blocksList[this.plantBlockId]).canBlockStay(var1, var7, var8, var9)) {
- 				var1.setBlock(var7, var8, var9, this.plantBlockId);
- 			}
---- net/minecraft/src/GuiChest.java
-+++ net/minecraft/src/GuiChest.java
-@@ -1,6 +1,7 @@
- package net.minecraft.src;
- 
- import org.lwjgl.opengl.GL11;
-+import java.util.Random;
- 
- public class GuiChest extends GuiContainer {
- 	private IInventory upperChestInventory;
-@@ -24,7 +25,7 @@
- 	}
- 
- 	protected void drawGuiContainerBackgroundLayer(float var1) {
--		int var2 = this.mc.renderEngine.getTexture("/gui/container.png");
-+		int var2 = this.mc.renderEngine.getTexture("/gui/container/" + new Random().nextInt(3) + ".png");
- 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
- 		this.mc.renderEngine.bindTexture(var2);
- 		int var3 = (this.width - this.xSize) / 2;
 --- /dev/null
 +++ net/minecraft/src/GlitchThing.java
 @@ -1,0 +1,42 @@
@@ -4084,21 +4415,6 @@
 +		line.write(buf, 0, buf.length);
 +	}
 +
-+}
---- /dev/null
-+++ net/minecraft/src/RenderGT.java
-@@ -1,0 +1,12 @@
-+package net.minecraft.src;
-+
-+import org.lwjgl.opengl.GL11;
-+
-+public class RenderGT extends RenderLiving {
-+	protected ModelGT modelBipedMain;
-+
-+	public RenderGT(ModelGT var1, float var2) {
-+		super(var1, var2);
-+		this.modelBipedMain = var1;
-+	}
 +}
 --- net/minecraft/src/GuiChat.java
 +++ net/minecraft/src/GuiChat.java
@@ -4174,222 +4490,6 @@
 +		g.fillRect(0, 0, getWidth(), getHeight());
 +	}
 +}
---- net/minecraft/src/SoundManager.java
-+++ net/minecraft/src/SoundManager.java
-@@ -18,6 +18,10 @@
- 	private static boolean loaded = false;
- 	private Random rand = new Random();
- 	private int ticksBeforeMusic = this.rand.nextInt(12000);
-+	public float glitchIntensity = 1.0F;
-+	private int glitchMusicTimer = 0;
-+	private int glitchMusicDuration = 0;
-+	private boolean glitchMusicActive = false;
- 
- 	public void loadSoundSettings(GameSettings var1) {
- 		this.soundPoolStreaming.field_1657_b = false;
-@@ -85,13 +89,48 @@
- 		this.soundPoolMusic.addSound(var1, var2);
- 	}
- 
--	public void playRandomMusicIfReady() {
-+	public void playRandomMusicIfReady(boolean glitch) {
- 		if(loaded && this.options.musicVolume != 0.0F) {
-+
-+			if(sndSystem.playing("BgMusic") && glitch) {
-+
-+				if(glitchMusicActive) {
-+					--glitchMusicDuration;
-+
-+					if(this.rand.nextInt(3) == 0) {
-+						float[] g = applyGlitch( 1.0F, this.options.musicVolume);
-+						sndSystem.setPitch("BgMusic", g[0]);
-+						sndSystem.setVolume("BgMusic", g[1]);
-+					}
-+
-+					if(glitchMusicDuration <= 0) {
-+						glitchMusicActive = false;
-+						glitchMusicTimer = this.rand.nextInt(400) + 100; // 次の抽選まで5秒〜25秒待つ
-+						sndSystem.setPitch("BgMusic", 1.0F);
-+						sndSystem.setVolume("BgMusic", this.options.musicVolume);
-+					}
-+
-+				} else {
-+					--glitchMusicTimer;
-+					if(glitchMusicTimer <= 0) {
-+						if(this.rand.nextFloat() < glitchIntensity) {
-+							glitchMusicActive = true;
-+							glitchMusicDuration = this.rand.nextInt(100) + 20;
-+						} else {
-+							glitchMusicTimer = this.rand.nextInt(400) + 100;
-+						}
-+					}
-+				}
-+			}
-+
-+			if(!glitch && sndSystem.playing("BgMusic")) {
-+				glitchMusicActive = false;
-+				sndSystem.setPitch("BgMusic", 1.0F);
-+				sndSystem.setVolume("BgMusic", this.options.musicVolume);
-+			}
-+
- 			if(!sndSystem.playing("BgMusic") && !sndSystem.playing("streaming")) {
--				if(this.ticksBeforeMusic > 0) {
--					--this.ticksBeforeMusic;
--					return;
--				}
-+				if(this.ticksBeforeMusic > 0) { --this.ticksBeforeMusic; return; }
- 
- 				SoundPoolEntry var1 = this.soundPoolMusic.getRandomSound();
- 				if(var1 != null) {
-@@ -101,7 +140,6 @@
- 					sndSystem.play("BgMusic");
- 				}
- 			}
--
- 		}
- 	}
- 
-@@ -150,47 +188,96 @@
- 		}
- 	}
- 
--	public void playSound(String var1, float var2, float var3, float var4, float var5, float var6) {
-+	public void playSound(boolean glitch, String var1, float var2, float var3, float var4, float var5, float var6) {
- 		if(loaded && this.options.soundVolume != 0.0F) {
- 			SoundPoolEntry var7 = this.soundPoolSounds.getRandomSoundFromSoundPool(var1);
- 			if(var7 != null && var5 > 0.0F) {
- 				this.field_587_e = (this.field_587_e + 1) % 256;
- 				String var8 = "sound_" + this.field_587_e;
- 				float var9 = 16.0F;
--				if(var5 > 1.0F) {
--					var9 *= var5;
--				}
--
--				sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
--				sndSystem.setPitch(var8, var6);
--				if(var5 > 1.0F) {
--					var5 = 1.0F;
--				}
--
--				sndSystem.setVolume(var8, var5 * this.options.soundVolume);
--				sndSystem.play(var8);
-+				if(var5 > 1.0F) var9 *= var5;
-+
-+				if(glitch) {
-+					if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) return;
-+
-+					playGlitchStutter(var7, var5 > 1.0F ? 1.0F : var5, var6, true, var2, var3, var4, var9);
-+				} else {
-+					sndSystem.newSource(var5 > 1.0F, var8, var7.soundUrl, var7.soundName, false, var2, var3, var4, 2, var9);
-+					sndSystem.setPitch(var8, var6);
-+					if(var5 > 1.0F) var5 = 1.0F;
-+					sndSystem.setVolume(var8, var5 * this.options.soundVolume);
-+					sndSystem.play(var8);
-+				}
- 			}
--
- 		}
- 	}
- 
--	public void playSoundFX(String var1, float var2, float var3) {
-+	public void playSoundFX(boolean glitch, String var1, float var2, float var3) {
- 		if(loaded && this.options.soundVolume != 0.0F) {
- 			SoundPoolEntry var4 = this.soundPoolSounds.getRandomSoundFromSoundPool(var1);
- 			if(var4 != null) {
- 				this.field_587_e = (this.field_587_e + 1) % 256;
- 				String var5 = "sound_" + this.field_587_e;
--				sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
--				if(var2 > 1.0F) {
--					var2 = 1.0F;
--				}
--
-+				if(var2 > 1.0F) var2 = 1.0F;
- 				var2 *= 0.25F;
--				sndSystem.setPitch(var5, var3);
--				sndSystem.setVolume(var5, var2 * this.options.soundVolume);
--				sndSystem.play(var5);
--			}
--
-+
-+				if(glitch) {
-+					if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) return;
-+
-+					playGlitchStutter(var4, var2, var3, false, 0, 0, 0, 0);
-+				} else {
-+					sndSystem.newSource(false, var5, var4.soundUrl, var4.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
-+					sndSystem.setPitch(var5, var3);
-+					sndSystem.setVolume(var5, var2 * this.options.soundVolume);
-+					sndSystem.play(var5);
-+				}
-+			}
-+		}
-+	}
-+
-+	private float[] applyGlitch(float pitch, float vol) {
-+		float p = pitch;
-+		float v = vol;
-+
-+		p += (this.rand.nextFloat() - 0.65F) * glitchIntensity * 1.5F;
-+
-+		if(this.rand.nextInt(5) == 0) {
-+			p *= 0.3F + this.rand.nextFloat() * 0.4F;
-+		}
-+		if(this.rand.nextInt(12) == 0) {
-+			p *= 2.5F + this.rand.nextFloat() * 1.5F;
-+		}
-+
-+		if(this.rand.nextInt(4) == 0) {
-+			v *= this.rand.nextFloat() * (1.0F - glitchIntensity);
-+		}
-+		if(this.rand.nextInt(8) == 0 && glitchIntensity > 0.5F) {
-+			v = 0.0F;
-+		}
-+
-+		if(p < 0.05F) p = 0.05F;
-+
-+		return new float[]{p, v};
-+	}
-+
-+
-+	private void playGlitchStutter(SoundPoolEntry entry, float vol, float pitch, boolean positional,
-+								   float x, float y, float z, float var9) {
-+		int count = this.rand.nextInt(3) + 2;
-+		for(int i = 0; i < count; i++) {
-+			this.field_587_e = (this.field_587_e + 1) % 256;
-+			String id = "sound_" + this.field_587_e;
-+
-+			float[] g = applyGlitch(pitch, vol);
-+
-+			if(positional) {
-+				sndSystem.newSource(vol > 1.0F, id, entry.soundUrl, entry.soundName, false, x, y, z, 2, var9);
-+			} else {
-+				sndSystem.newSource(false, id, entry.soundUrl, entry.soundName, false, 0.0F, 0.0F, 0.0F, 0, 0.0F);
-+			}
-+			sndSystem.setPitch(id, g[0]);
-+			sndSystem.setVolume(id, g[1] * this.options.soundVolume);
-+			sndSystem.play(id);
- 		}
- 	}
- }
---- net/minecraft/src/GuiFurnace.java
-+++ net/minecraft/src/GuiFurnace.java
-@@ -1,6 +1,7 @@
- package net.minecraft.src;
- 
- import org.lwjgl.opengl.GL11;
-+import java.util.Random;
- 
- public class GuiFurnace extends GuiContainer {
- 	private TileEntityFurnace furnaceInventory;
-@@ -16,7 +17,7 @@
- 	}
- 
- 	protected void drawGuiContainerBackgroundLayer(float var1) {
--		int var2 = this.mc.renderEngine.getTexture("/gui/furnace.png");
-+		int var2 = this.mc.renderEngine.getTexture("/gui/furnace/" + new Random().nextInt(3) + ".png");
- 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
- 		this.mc.renderEngine.bindTexture(var2);
- 		int var3 = (this.width - this.xSize) / 2;
 --- net/minecraft/src/BlockReed.java
 +++ net/minecraft/src/BlockReed.java
 @@ -36,7 +36,7 @@
@@ -4461,25 +4561,6 @@
 +		return null;
 +	}
 +}
---- net/minecraft/src/GuiDispenser.java
-+++ net/minecraft/src/GuiDispenser.java
-@@ -1,6 +1,7 @@
- package net.minecraft.src;
- 
- import org.lwjgl.opengl.GL11;
-+import java.util.Random;
- 
- public class GuiDispenser extends GuiContainer {
- 	public GuiDispenser(InventoryPlayer var1, TileEntityDispenser var2) {
-@@ -13,7 +14,7 @@
- 	}
- 
- 	protected void drawGuiContainerBackgroundLayer(float var1) {
--		int var2 = this.mc.renderEngine.getTexture("/gui/trap.png");
-+		int var2 = this.mc.renderEngine.getTexture("/gui/trap/" + new Random().nextInt(3) + ".png");
- 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
- 		this.mc.renderEngine.bindTexture(var2);
- 		int var3 = (this.width - this.xSize) / 2;
 --- net/minecraft/src/TexturedQuad.java
 +++ net/minecraft/src/TexturedQuad.java
 @@ -12,14 +12,14 @@
@@ -4521,109 +4602,6 @@
  				GL11.glBindTexture(GL11.GL_TEXTURE_2D, var8);
  				float var9 = 32.0F;
  				var7.startDrawingQuads();
---- /dev/null
-+++ net/minecraft/src/EntityBinaryGlitch.java
-@@ -1,0 +1,48 @@
-+package net.minecraft.src;
-+
-+import net.minecraft.client.Minecraft;
-+import java.util.Random;
-+
-+public class EntityBinaryGlitch extends EntityAnimalAttack {
-+	public EntityBinaryGlitch(World var1) {
-+		super(var1);
-+		this.texture = "/mob/binaryglitch/0.png";
-+		this.health = 100;
-+		this.moveSpeed = 0.7F;
-+		this.attackStrength = 10;
-+	}
-+
-+	public void onLivingUpdate() {
-+		super.onLivingUpdate();
-+		this.texture = "/mob/binaryglitch/" + new Random().nextInt(4) + ".png";
-+		if(!this.worldObj.multiplayerWorld) {
-+			EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
-+			if(player != null) {
-+				if(this.getDistanceToEntity(player) <= 5) {
-+					this.setEntityDead();
-+					int XX = new Random().nextInt(1000) - 500;
-+					int ZZ = new Random().nextInt(1000) - 500;
-+					this.worldObj.getChunkFromBlockCoords(XX >> 4, ZZ >> 4);
-+					int YY = this.worldObj.findTopSolidBlock(XX, ZZ) + 2;
-+					player.setPosition(XX, YY, ZZ);
-+				}
-+			}
-+		}
-+	}
-+
-+	public boolean attackEntityFrom(Entity var1, int var2) {
-+		return false;
-+	}
-+
-+	protected String getLivingSound() {
-+		return null;
-+	}
-+
-+	protected String getHurtSound() {
-+		return null;
-+	}
-+
-+	protected String getDeathSound() {
-+		return null;
-+	}
-+}
---- /dev/null
-+++ net/minecraft/src/RealtimeGlitch.java
-@@ -1,0 +1,49 @@
-+package net.minecraft.src;
-+
-+import javax.sound.sampled.*;
-+
-+public class RealtimeGlitch extends Thread {
-+	private SourceDataLine line;
-+	private volatile boolean running = true;
-+
-+	public void run() {
-+		try {
-+			AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
-+			line = AudioSystem.getSourceDataLine(format);
-+			line.open(format);
-+			line.start();
-+
-+			byte[] buffer = new byte[1024];
-+
-+			while (running) {
-+				generateGlitchNoise(buffer);
-+				line.write(buffer, 0, buffer.length);
-+			}
-+
-+			line.drain();
-+			line.close();
-+		} catch (Exception e) {
-+			e.printStackTrace();
-+		}
-+	}
-+
-+	private static void generateGlitchNoise(byte[] buffer) {
-+		float volume = 0.1f;
-+
-+		for (int i = 0; i < buffer.length; i += 2) {
-+			short sample = (short)(Math.random() * Short.MAX_VALUE);
-+
-+			if (Math.random() < 0.3) {
-+				sample = (short)(sample ^ (int)(Math.random() * 0xFFFF));
-+			}
-+
-+			sample = (short)(sample * volume);
-+
-+			buffer[i] = (byte)(sample & 0xFF);
-+			buffer[i + 1] = (byte)((sample >> 8) & 0xFF);
-+		}
-+	}
-+	public void stopGlitch() {
-+		running = false;
-+	}
-+}
 --- /dev/null
 +++ net/minecraft/src/Beep.java
 @@ -1,0 +1,33 @@

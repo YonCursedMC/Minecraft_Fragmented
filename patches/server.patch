@@ -596,7 +596,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/EntityGlitchThing.java
-@@ -1,0 +1,33 @@
+@@ -1,0 +1,39 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -619,6 +619,12 @@
 +	}
 +
 +	protected String getLivingSound() {
++		EntityPlayerMP player = (EntityPlayerMP)this.worldObj.getClosestPlayerToEntity(this, 20);
++		if(player != null) {
++			if(this.getDistanceToEntity(player) <= 10) {
++				player.playerNetServerHandler.sendPacket(new Packet81Sound("/sounds/GTS.wav"));
++			}
++		}
 +		return null;
 +	}
 +
@@ -1322,12 +1328,12 @@
 +
 +	public void onLivingUpdate() {
 +		super.onLivingUpdate();
-+		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 30);
++		EntityPlayerMP player = (EntityPlayerMP)this.worldObj.getClosestPlayerToEntity(this, 30);
 +		if(player != null) {
 +			if(this.getDistanceToEntity(player) <= 5) {
 +				this.setEntityDead();
 +				if(new Random().nextInt(8) == 0) {
-+					throw new RuntimeException("null");
++					player.PacketEvent(5);
 +				}
 +				if(new Random().nextInt(4) == 0) {
 +					this.worldObj.fragmentedEvents.timerS[3] = true;
