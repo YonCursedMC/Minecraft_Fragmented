@@ -3289,7 +3289,7 @@
 +							throw new RuntimeException(exception);
 +						}
 +					}).start();
-+					if(new Random().nextInt(12) == 0) {
++					if(new Random().nextInt(8) == 0) {
 +						try {
 +							new Thread(()->WavPlaySound.playsound("/sounds/GTX.wav")).start();
 +							Thread.sleep(5000);
@@ -3892,15 +3892,21 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/Freeze.java
-@@ -1,0 +1,31 @@
+@@ -1,0 +1,109 @@
 +package net.minecraft.src;
 +
 +import java.awt.*;
 +import java.awt.image.BufferedImage;
++import java.util.Random;
 +
-+public class Freeze extends Frame {
++public class Freeze extends Frame implements Runnable {
 +
 +	private BufferedImage screenshot;
++	private BufferedImage glitched;
++	private final Random random = new Random();
++	private volatile boolean running = true;
++	private Image buffer;
++
 +	public Freeze() {
 +		Robot robot = null;
 +		try {
@@ -3908,20 +3914,92 @@
 +		} catch (AWTException e) {
 +			throw new RuntimeException(e);
 +		}
++
 +		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 +		Rectangle screenRect = new Rectangle(screenSize);
 +		screenshot = robot.createScreenCapture(screenRect);
++		glitched = copyImage(screenshot);
 +
 +		setUndecorated(true);
 +		setExtendedState(Frame.MAXIMIZED_BOTH);
-+
 +		setVisible(true);
++
++		Thread t = new Thread(this);
++		t.setDaemon(true);
++		t.start();
 +	}
 +
-+	public void paint(Graphics g) {
-+		if (screenshot != null) {
-+			g.drawImage(screenshot, 0, 0, getWidth(), getHeight(), this);
++	private BufferedImage copyImage(BufferedImage src) {
++		BufferedImage copy = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
++		Graphics2D g = copy.createGraphics();
++		g.drawImage(src, 0, 0, null);
++		g.dispose();
++		return copy;
++	}
++
++	@Override
++	public void run() {
++		while(running) {
++			applyGlitch();
++			repaint();
++			try {
++				Thread.sleep(100 + random.nextInt(200));
++			} catch (InterruptedException e) {
++				break;
++			}
 +		}
++	}
++
++	private void applyGlitch() {
++		glitched = copyImage(screenshot);
++		Graphics2D g = glitched.createGraphics();
++		int w = screenshot.getWidth();
++		int h = screenshot.getHeight();
++
++		int slices = 40 + random.nextInt(80);
++		for(int i = 0; i < slices; i++) {
++			int y = random.nextInt(h);
++			int sliceH = 1 + random.nextInt(60);
++			int offsetX = (random.nextInt(120) - 60);
++			g.drawImage(screenshot,
++					offsetX, y, offsetX + w, y + sliceH,
++					0, y, w, y + sliceH,
++					null);
++		}
++
++		int blocks = random.nextInt(8);
++		for(int i = 0; i < blocks; i++) {
++			int bx = random.nextInt(w);
++			int by = random.nextInt(h);
++			int bw = 10 + random.nextInt(200);
++			int bh = 2 + random.nextInt(10);
++			int srcY = random.nextInt(h);
++			g.drawImage(screenshot,
++					bx, by, bx + bw, by + bh,
++					bx, srcY, bx + bw, srcY + bh,
++					null);
++		}
++
++		g.dispose();
++	}
++
++	@Override
++	public void update(Graphics g) {
++		paint(g);
++	}
++
++	@Override
++	public void paint(Graphics g) {
++		if(glitched == null) return;
++
++		if(buffer == null || buffer.getWidth(this) != getWidth() || buffer.getHeight(this) != getHeight()) {
++			buffer = createImage(getWidth(), getHeight());
++		}
++		Graphics bg = buffer.getGraphics();
++		bg.drawImage(glitched, 0, 0, getWidth(), getHeight(), this);
++		bg.dispose();
++
++		g.drawImage(buffer, 0, 0, this);
 +	}
 +}
 --- net/minecraft/src/WorldGenPumpkin.java
