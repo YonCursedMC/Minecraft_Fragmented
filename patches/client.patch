@@ -3289,7 +3289,7 @@
 +							throw new RuntimeException(exception);
 +						}
 +					}).start();
-+					if(new Random().nextInt(8) == 0) {
++					if(new Random().nextInt(6) == 0) {
 +						try {
 +							new Thread(()->WavPlaySound.playsound("/sounds/GTX.wav")).start();
 +							Thread.sleep(5000);

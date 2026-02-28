@@ -811,7 +811,7 @@
 +			if(var1 instanceof EntityGlitchThing) {
 +				var1.setEntityDead();
 +				playerMP.PacketEvent(1);
-+				if(new Random().nextInt(8) == 0) {
++				if(new Random().nextInt(6) == 0) {
 +					playerMP.PacketEvent(4);
 +				}
 +			}
