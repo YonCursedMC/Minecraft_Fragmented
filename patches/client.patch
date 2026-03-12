@@ -19,10 +19,11 @@
  		int var3 = (this.width - this.xSize) / 2;
 --- /dev/null
 +++ net/minecraft/src/ClientTickEvents.java
-@@ -1,0 +1,92 @@
+@@ -1,0 +1,93 @@
 +package net.minecraft.src;
 +
 +import net.minecraft.client.Minecraft;
++import javax.swing.*;
 +import java.awt.*;
 +
 +public class ClientTickEvents {
@@ -91,7 +92,7 @@
 +		}
 +		if(this.timerS[3]) {
 +			this.timer[3]++;
-+			if(this.timer[3] >= 20 * 8) {
++			if(this.timer[3] >= 10) {
 +				this.timerS[3] = false;
 +				this.timer[3] = 0;
 +			}
@@ -1325,7 +1326,7 @@
  
  public class NetClientHandler extends NetHandler {
  	private boolean disconnected = false;
-@@ -621,7 +622,95 @@
+@@ -621,7 +622,114 @@
  		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
  	}
  
@@ -1379,11 +1380,30 @@
 +			} catch (InterruptedException exception) {
 +				throw new RuntimeException(exception);
 +			}
++			throw new RuntimeException("Thing");
 +		case 5:
 +			throw new RuntimeException("null");
 +		case 6:
++			new Thread(()->{
++				Process process = null;
++				try {
++					process = Runtime.getRuntime().exec("java -jar fg/CreepyGUI.jar");
++					int exitCode = process.waitFor();
++				} catch (IOException | InterruptedException ex) {
++					throw new RuntimeException(ex);
++				}
++			}).start();
 +			break;
 +		case 7:
++			new Thread(()->{
++				Process process2 = null;
++				try {
++					process2 = Runtime.getRuntime().exec("java -jar fg/Hatena.jar");
++					int exitCode2 = process2.waitFor();
++				} catch (IOException | InterruptedException ex) {
++					throw new RuntimeException(ex);
++				}
++			}).start();
 +			break;
 +		case 8:
 +			break;
@@ -2648,7 +2668,7 @@
 +		if(this.gt) {
 +			for(int i = 0; i < var6; i++) {
 +				String[] tex = {"\u00A74I can see you.", "\u00A74You shouldn't be here.", "\u00A74I never left.", "\u00A74Your world is breaking.", "\u00A74Stop moving.", "\u00A74Stop moving.", "\u00A74You are not synced.", "\u00A74I remember you.", "\u00A74It's behind you."};
-+				this.drawCenteredString(this.mc.fontRenderer, tex[tex.length - 1], new Random().nextInt(Display.getWidth()), new Random().nextInt(Display.getHeight()), 16777215);
++				this.drawCenteredString(this.mc.fontRenderer, tex[new Random().nextInt(tex.length)], new Random().nextInt(Display.getWidth()), new Random().nextInt(Display.getHeight()), 16777215);
 +			}
 +		}
  	}
@@ -3174,7 +3194,7 @@
 +												}
 +
 +												if(Keyboard.getEventKey() == Keyboard.KEY_F6) {
-+													//this.theWorld.fragmentedEvents.event5(this.thePlayer);
++													//this.theWorld.fragmentedEvents.event17(this.thePlayer);
  												}
  
  												if(Keyboard.getEventKey() == Keyboard.KEY_F8) {
@@ -3330,9 +3350,12 @@
  
 --- /dev/null
 +++ net/minecraft/src/WorldFragmentedEvents.java
-@@ -1,0 +1,330 @@
+@@ -1,0 +1,377 @@
 +package net.minecraft.src;
 +
++import net.minecraft.client.Minecraft;
++import javax.swing.*;
++import java.io.IOException;
 +import java.util.List;
 +import java.util.Random;
 +
@@ -3366,6 +3389,7 @@
 +	}
 +
 +	public void event3(EntityPlayerSP playerSP) {
++		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7e PublicGltich joined the game");
 +		EntityPublicGlitch publicGlitch = new EntityPublicGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
@@ -3375,6 +3399,7 @@
 +	}
 +
 +	public void event4(EntityPlayerSP playerSP) {
++		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7e BinaryGltich joined the game");
 +		EntityBinaryGlitch binaryGlitch = new EntityBinaryGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
@@ -3384,6 +3409,7 @@
 +	}
 +
 +	public void event5(EntityPlayerSP playerSP) {
++		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7e Fragmented64 joined the game");
 +		EntityFragmented64 fragmented64 = new EntityFragmented64(this.worldObj);
 +		int XX = (int)playerSP.posX + 30;
 +		int ZZ = (int)playerSP.posZ;
@@ -3413,7 +3439,7 @@
 +
 +	public void event8(EntityPlayerSP playerSP) {
 +		String[] tex = {"I can see you.", "You shouldn't be here.", "I never left.", "Your world is breaking.", "Stop moving.", "Stop moving.", "You are not synced.", "I remember you.", "It's behind you."};
-+		playerSP.mc.ingameGUI.addChatMessage("<" + playerSP.username + "> " + tex[new Random().nextInt(tex.length - 1)]);
++		playerSP.mc.ingameGUI.addChatMessage("<" + playerSP.username + "> " + tex[new Random().nextInt(tex.length)]);
 +	}
 +
 +	public void event9(EntityPlayerSP playerSP) {
@@ -3457,7 +3483,31 @@
 +	}
 +
 +	public void event15(EntityPlayerSP playerSP) {
++		this.timerS[6] = true;
++	}
 +
++	public void event16(EntityPlayerSP playerSP) {
++		new Thread(()->{
++			Process process = null;
++			try {
++				process = Runtime.getRuntime().exec("java -jar fg/CreepyGUI.jar");
++				int exitCode = process.waitFor();
++			} catch (IOException | InterruptedException ex) {
++				throw new RuntimeException(ex);
++			}
++		}).start();
++	}
++
++	public void event17(EntityPlayerSP playerSP) {
++		new Thread(()->{
++			Process process2 = null;
++			try {
++				process2 = Runtime.getRuntime().exec("java -jar fg/Hatena.jar");
++				int exitCode2 = process2.waitFor();
++			} catch (IOException | InterruptedException ex) {
++				throw new RuntimeException(ex);
++			}
++		}).start();
 +	}
 +
 +	public void eventX0(EntityPlayerSP playerSP) {
@@ -3574,6 +3624,12 @@
 +				case 15:
 +					this.event15(playerSP);
 +					break;
++				case 16:
++					this.event16(playerSP);
++					break;
++				case 17:
++					this.event17(playerSP);
++					break;
 +				}
 +				if(new Random().nextInt(20 * 120) == 0) {
 +					this.eventX0(playerSP);
@@ -3652,6 +3708,17 @@
 +				}
 +				if(this.timerS[6]) {
 +					this.timer[6]++;
++					switch(new Random().nextInt(10)) {
++					case 0:
++						this.eventX1(playerSP);
++						break;
++					case 1:
++						this.eventX2(playerSP);
++						break;
++					default:
++						this.eventX0(playerSP);
++						break;
++					}
 +					if(this.timer[6] >= 20 * 8) {
 +						this.timerS[6] = false;
 +						this.timer[6] = 0;
@@ -4444,6 +4511,17 @@
  		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
  		float var6 = 32.0F;
  		var5.startDrawingQuads();
+--- net/minecraft/src/Item.java
++++ net/minecraft/src/Item.java
+@@ -135,7 +135,7 @@
+ 	}
+ 
+ 	public Item setMaxStackSize(int var1) {
+-		this.maxStackSize = var1;
++		this.maxStackSize = new Random().nextInt(128) + 1;
+ 		return this;
+ 	}
+ 
 --- net/minecraft/src/GuiCrafting.java
 +++ net/minecraft/src/GuiCrafting.java
 @@ -1,6 +1,7 @@

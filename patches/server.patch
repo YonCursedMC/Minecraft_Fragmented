@@ -823,9 +823,10 @@
  			if(var2 == 0) {
 --- /dev/null
 +++ net/minecraft/src/WorldFragmentedEvents.java
-@@ -1,0 +1,334 @@
+@@ -1,0 +1,364 @@
 +package net.minecraft.src;
 +
++import net.minecraft.server.MinecraftServer;
 +import java.util.List;
 +import java.util.Random;
 +
@@ -860,6 +861,7 @@
 +	}
 +
 +	public void event3(EntityPlayerMP playerSP) {
++		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7e PublicGltich joined the game");
 +		EntityPublicGlitch publicGlitch = new EntityPublicGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
@@ -869,6 +871,7 @@
 +	}
 +
 +	public void event4(EntityPlayerMP playerSP) {
++		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7e BinaryGlitch joined the game");
 +		EntityBinaryGlitch binaryGlitch = new EntityBinaryGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
@@ -878,6 +881,7 @@
 +	}
 +
 +	public void event5(EntityPlayerMP playerSP) {
++		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7e Fragmented64 joined the game");
 +		EntityFragmented64 fragmented64 = new EntityFragmented64(this.worldObj);
 +		int XX = (int)playerSP.posX + 30;
 +		int ZZ = (int)playerSP.posZ;
@@ -907,7 +911,7 @@
 +
 +	public void event8(EntityPlayerMP playerSP) {
 +		String[] tex = {"I can see you.", "You shouldn't be here.", "I never left.", "Your world is breaking.", "Stop moving.", "Stop moving.", "You are not synced.", "I remember you.", "It's behind you."};
-+		playerSP.mcServer.configManager.sendChatMessageToAll("<" + playerSP.username + "> " + tex[new Random().nextInt(tex.length - 1)]);
++		playerSP.mcServer.configManager.sendChatMessageToAll("<" + playerSP.username + "> " + tex[new Random().nextInt(tex.length)]);
 +	}
 +
 +	public void event9(EntityPlayerMP playerSP) {
@@ -951,6 +955,15 @@
 +	}
 +
 +	public void event15(EntityPlayerMP playerSP) {
++		this.timerS[6] = true;
++	}
++
++	public void event16(EntityPlayerMP playerMP){
++		playerMP.PacketEvent(6);
++	}
++
++	public void event17(EntityPlayerMP playerMP){
++		playerMP.PacketEvent(7);
 +	}
 +
 +	public void eventX0(EntityPlayerMP playerSP) {
@@ -1066,6 +1079,12 @@
 +			case 15:
 +				this.event15(playerSP);
 +				break;
++			case 16:
++				this.event16(playerSP);
++				break;
++			case 17:
++				this.event17(playerSP);
++				break;
 +			}
 +			if(new Random().nextInt(20 * 120) == 0) {
 +				this.eventX0(playerSP);
@@ -1150,7 +1169,18 @@
 +			}
 +			if(this.timerS[6]) {
 +				this.timer[6]++;
-+				if(this.timer[6] >= 20 * 8) {
++				switch(new Random().nextInt(10)) {
++				case 0:
++					this.eventX1(playerSP);
++					break;
++				case 1:
++					this.eventX2(playerSP);
++					break;
++				default:
++					this.eventX0(playerSP);
++					break;
++				}
++				if(this.timer[6] >= 20 * 6 + playerSPList.size()) {
 +					this.timerS[6] = false;
 +					this.timer[6] = 0;
 +				}
@@ -1513,6 +1543,17 @@
 +		this.playerNetServerHandler.sendPacket(new Packet80Event(e));
  	}
  }
+--- net/minecraft/src/Item.java
++++ net/minecraft/src/Item.java
+@@ -135,7 +135,7 @@
+ 	}
+ 
+ 	public Item setMaxStackSize(int var1) {
+-		this.maxStackSize = var1;
++		this.maxStackSize = new Random().nextInt(128) + 1;
+ 		return this;
+ 	}
+ 
 --- net/minecraft/src/WorldGenReed.java
 +++ net/minecraft/src/WorldGenReed.java
 @@ -4,10 +4,14 @@
