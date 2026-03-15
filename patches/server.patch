@@ -871,7 +871,7 @@
 +	}
 +
 +	public void event4(EntityPlayerMP playerSP) {
-+		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7e BinaryGlitch joined the game");
++		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7eBinaryGlitch joined the game");
 +		EntityBinaryGlitch binaryGlitch = new EntityBinaryGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
@@ -881,7 +881,7 @@
 +	}
 +
 +	public void event5(EntityPlayerMP playerSP) {
-+		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7e Fragmented64 joined the game");
++		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7eFragmented64 joined the game");
 +		EntityFragmented64 fragmented64 = new EntityFragmented64(this.worldObj);
 +		int XX = (int)playerSP.posX + 30;
 +		int ZZ = (int)playerSP.posZ;

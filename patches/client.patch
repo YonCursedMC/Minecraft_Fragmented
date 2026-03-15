@@ -3399,7 +3399,7 @@
 +	}
 +
 +	public void event4(EntityPlayerSP playerSP) {
-+		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7e BinaryGltich joined the game");
++		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7eBinaryGltich joined the game");
 +		EntityBinaryGlitch binaryGlitch = new EntityBinaryGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
@@ -3409,7 +3409,7 @@
 +	}
 +
 +	public void event5(EntityPlayerSP playerSP) {
-+		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7e Fragmented64 joined the game");
++		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7eFragmented64 joined the game");
 +		EntityFragmented64 fragmented64 = new EntityFragmented64(this.worldObj);
 +		int XX = (int)playerSP.posX + 30;
 +		int ZZ = (int)playerSP.posZ;
