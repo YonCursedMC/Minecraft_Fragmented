@@ -3389,7 +3389,7 @@
 +	}
 +
 +	public void event3(EntityPlayerSP playerSP) {
-+		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7e PublicGltich joined the game");
++		Minecraft.theMinecraft.ingameGUI.addChatMessage("\u00A7ePublicGltich joined the game");
 +		EntityPublicGlitch publicGlitch = new EntityPublicGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;

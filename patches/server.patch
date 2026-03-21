@@ -861,7 +861,7 @@
 +	}
 +
 +	public void event3(EntityPlayerMP playerSP) {
-+		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7e PublicGltich joined the game");
++		playerSP.mcServer.configManager.sendChatMessageToAll("\u00A7ePublicGltich joined the game");
 +		EntityPublicGlitch publicGlitch = new EntityPublicGlitch(this.worldObj);
 +		int XX = (int)playerSP.posX + 20;
 +		int ZZ = (int)playerSP.posZ;
